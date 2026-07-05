@@ -201,23 +201,36 @@ tr:hover td{background:#F7F4EF}
 .sc-cat{display:inline-flex;align-items:center;gap:6px;font-size:.63rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mu);margin-bottom:8px;padding:5px 9px;border-radius:999px;background:#f7f1e8}
 .ml-name .ml-emoji{margin-right:6px;font-size:.9rem}
 
-#s6 .map-flex{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start;margin-top:6px}
-#s6 .map-svg-wrap{flex:1 1 470px;min-width:300px}
-#mapSvg{width:100%;height:auto;max-width:540px;display:block}
-.mp-tile rect{fill:#f3efe8;stroke:#fff;stroke-width:2.5;transition:fill .25s,stroke .12s;cursor:pointer}
-.mp-tile:hover rect{stroke:#c0511a;stroke-width:3}
-.mp-tile.sel rect{stroke:#1c1c1c;stroke-width:3.5}
-.mp-tile.nod rect{opacity:.45}
-.mp-ab{font-size:10px;fill:#6b6257;font-weight:600;pointer-events:none;font-family:inherit}
+#s6 .map-flex{background:radial-gradient(120% 120% at 25% 8%,#20305a 0%,#141d34 55%,#0b1020 100%);border-radius:22px;padding:22px 22px 26px;gap:22px;position:relative;overflow:hidden;box-shadow:inset 0 0 70px rgba(0,0,0,.55),0 14px 44px rgba(10,15,35,.28)}
+#s6 .map-flex::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(120,160,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(120,160,255,.06) 1px,transparent 1px);background-size:26px 26px;-webkit-mask-image:radial-gradient(120% 120% at 30% 8%,#000,transparent 82%);mask-image:radial-gradient(120% 120% at 30% 8%,#000,transparent 82%);pointer-events:none}
+#s6 .map-svg-wrap{flex:1 1 470px;min-width:300px;position:relative;z-index:1}
+#mapSvg{width:100%;height:auto;max-width:560px;display:block;overflow:visible}
+.mp-tile rect{fill:#2a3557;stroke:rgba(255,255,255,.10);stroke-width:1;transform-box:fill-box;transform-origin:center;transition:fill .35s,transform .2s cubic-bezier(.34,1.56,.64,1),stroke .15s}
+.mp-tile{cursor:pointer;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}
+.mp-tile.heat{filter:drop-shadow(0 0 7px var(--gc)) drop-shadow(0 2px 3px rgba(0,0,0,.4))}
+.mp-tile:hover{filter:drop-shadow(0 0 12px var(--gc,rgba(140,180,255,.9)))}
+.mp-tile:hover rect{transform:scale(1.16);stroke:rgba(255,255,255,.8);stroke-width:1.5}
+.mp-tile.sel rect{stroke:#fff;stroke-width:2.5}
+.mp-tile.sel{filter:drop-shadow(0 0 13px var(--gc,rgba(255,255,255,.9)))!important;animation:mpSel 1.5s ease-in-out infinite}
+.mp-tile.hot rect{animation:mpHot 1.15s ease-in-out infinite}
+.mp-tile.nod rect{fill:#20273f;opacity:.5}
+.mp-tile.nod{filter:none}
+.mp-ab{fill:rgba(255,255,255,.92);font-weight:700;font-size:10px;pointer-events:none;paint-order:stroke;stroke:rgba(0,0,0,.4);stroke-width:2px;font-family:inherit}
+.mp-tile.in rect{animation:mpIn .55s cubic-bezier(.34,1.56,.64,1) backwards}
+@keyframes mpIn{0%{transform:scale(0) rotate(-25deg);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+@keyframes mpHot{0%,100%{transform:scale(1)}50%{transform:scale(1.13)}}
+@keyframes mpSel{0%,100%{filter:drop-shadow(0 0 8px var(--gc,#fff))}50%{filter:drop-shadow(0 0 18px var(--gc,#fff))}}
 .map-controls{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:8px 0 4px}
 #mapNameInput{padding:9px 14px;border:1px solid #e2dcd2;border-radius:12px;font-size:.9rem;min-width:240px;outline:none}
 #mapNameInput:focus{border-color:#c0511a}
-.mp-panel{flex:1 1 250px;min-width:230px;background:#fff;border:1px solid #eee4d6;border-radius:16px;padding:14px 16px;box-shadow:0 6px 22px rgba(0,0,0,.05)}
-.mp-ph{display:flex;flex-direction:column;margin-bottom:9px}.mp-ph strong{font-size:1.08rem}.mp-ph span{font-size:.72rem;color:#9a8f7f;margin-top:1px}
-.mp-row{display:flex;align-items:center;gap:9px;padding:5px 0;border-bottom:1px solid #f4efe6;font-size:.87rem}.mp-row:last-child{border-bottom:0}
-.mp-rk{width:19px;color:#c0511a;font-weight:700;font-size:.76rem}.mp-nm{flex:1}.mp-rt{color:#9a8f7f;font-size:.77rem}
-.map-legend{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:.72rem;color:#9a8f7f}
-.lg-bar{display:inline-block;width:130px;height:11px;border-radius:6px;background:linear-gradient(90deg,#f8f0e8,#c04a1a)}
+#s6 .mp-panel{flex:1 1 250px;min-width:230px;position:relative;z-index:1;background:rgba(255,255,255,.06);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:15px 17px;color:#e9eef9;box-shadow:0 8px 26px rgba(0,0,0,.25)}
+#s6 .mp-panel p{color:#8ea0c8!important}
+.mp-ph{display:flex;flex-direction:column;margin-bottom:10px}.mp-ph strong{font-size:1.12rem;color:#fff;letter-spacing:.2px}.mp-ph span{font-size:.7rem;color:#8ea0c8;text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.mp-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:.88rem}.mp-row:last-child{border-bottom:0}
+.mp-rk{width:22px;height:22px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f2802e,#e8402e);color:#fff;font-weight:800;font-size:.72rem;border-radius:7px;box-shadow:0 2px 6px rgba(232,64,46,.4)}
+.mp-nm{flex:1;color:#eef2fb}.mp-rt{color:#8ea0c8;font-size:.78rem;font-variant-numeric:tabular-nums}
+.map-legend{display:flex;align-items:center;gap:9px;margin-top:12px;font-size:.72rem;color:#8ea0c8;position:relative;z-index:1;flex-wrap:wrap}
+.lg-bar{display:inline-block;width:150px;height:11px;border-radius:6px;background:linear-gradient(90deg,#1b3a6b,#1e88c8,#23c6a0,#f2c14e,#f2802e,#e8402e);box-shadow:0 0 10px rgba(120,160,255,.3)}
 </style>
 </head>
 <body>
@@ -391,7 +404,7 @@ tr:hover td{background:#F7F4EF}
   </div>
   <div id="mapMeta"></div>
   <div class="map-flex">
-    <div class="map-svg-wrap"><svg id="mapSvg" viewBox="0 0 470 425" xmlns="http://www.w3.org/2000/svg"></svg><div class="map-legend" id="mapLegend"></div></div>
+    <div class="map-svg-wrap"><svg id="mapSvg" viewBox="-6 -6 496 448" xmlns="http://www.w3.org/2000/svg"></svg><div class="map-legend" id="mapLegend"></div></div>
     <div class="mp-panel" id="mapPanel"><p style="color:#9a8f7f;font-size:.85rem">Toca una provincia en el mapa.</p></div>
   </div>
 </div>
@@ -654,13 +667,9 @@ var mpSex='H',mpName='',mpCurProv=null,MP_IDX={H:null,F:null};
 function mpTitle(s){return s.toLowerCase().replace(/(^|[ \-])([a-záéíóúñ])/g,function(m,a,b){return a+b.toUpperCase();});}
 function mpGetIdx(g){if(MP_IDX[g])return MP_IDX[g];var src=PROV_DATA[g],idx={};for(var ine in src){src[ine].forEach(function(p){var k=p[0].toUpperCase();(idx[k]=idx[k]||{})[ine]=p[1];});}MP_IDX[g]=idx;return idx;}
 function mpInit(){var a=mpGetIdx('H'),b=mpGetIdx('F');var names=Object.keys(a).concat(Object.keys(b));var seen={},uniq=[];names.forEach(function(n){if(!seen[n]){seen[n]=1;uniq.push(n);}});uniq.sort();document.getElementById('mapNameList').innerHTML=uniq.map(function(n){return '<option value="'+mpTitle(n)+'">';}).join('');mpBuildTiles();mpRender();}
-function mpBuildTiles(){var S=42,ST=47,h='';for(var ine in MAP_LAYOUT){var L=MAP_LAYOUT[ine],x=L[0]*ST,y=L[1]*ST;var safe=ine.replace(/'/g,"\\'");h+='<g class="mp-tile" data-ine="'+ine.replace(/"/g,'&quot;')+'" tabindex="0" onclick="mpClickProv(\''+safe+'\')"><title></title><rect x="'+x+'" y="'+y+'" width="'+S+'" height="'+S+'" rx="7"></rect><text x="'+(x+S/2)+'" y="'+(y+S/2+4)+'" text-anchor="middle" class="mp-ab">'+L[3]+'</text></g>';}document.getElementById('mapSvg').innerHTML=h;}
-function mpColor(rate,max){if(rate==null||!max)return '#f3efe8';var t=Math.min(1,Math.sqrt(rate/max));var A=[248,240,232],B=[192,74,26];return 'rgb('+A.map(function(v,i){return Math.round(v+(B[i]-v)*t);}).join(',')+')';}
-function mpRender(){var g=mpSex;var idx=mpName?mpGetIdx(g)[mpName.toUpperCase()]:null;var max=0;if(idx){for(var k in idx)if(idx[k]>max)max=idx[k];}
-document.querySelectorAll('#mapSvg .mp-tile').forEach(function(el){var ine=el.dataset.ine,L=MAP_LAYOUT[ine];var rate=idx?(idx[ine]==null?null:idx[ine]):null;el.querySelector('rect').style.fill=idx?mpColor(rate,max):'#f3efe8';var tt=L[2];if(idx)tt+=rate!=null?': '+rate+'‰':': sin dato';el.querySelector('title').textContent=tt;el.classList.toggle('nod',idx&&rate==null);});
-var meta=document.getElementById('mapMeta'),leg=document.getElementById('mapLegend');
-if(mpName){meta.innerHTML='<div class="spec-meta"><strong>'+mpTitle(mpName)+'</strong> — dónde es más frecuente (por 1.000 '+(g==='H'?'niños':'niñas')+' empadronados). Cuanto más oscuro, más común.</div>';leg.innerHTML=max?'<span>menos</span><i class="lg-bar"></i><span>más ('+max.toFixed(1)+'‰)</span>':'<span>Este nombre no está en el top de ninguna provincia.</span>';}
-else{meta.innerHTML='<div class="spec-meta">Toca una provincia para ver sus nombres más frecuentes, o escribe un nombre arriba para ver el mapa de calor.</div>';leg.innerHTML='';}}
+function mpBuildTiles(){var Sz=42,ST=48,h='',n=0;for(var ine in MAP_LAYOUT){var L=MAP_LAYOUT[ine],x=L[0]*ST,y=L[1]*ST;var safe=ine.replace(/'/g,"\\'");h+='<g class="mp-tile in" data-ine="'+ine.replace(/"/g,'&quot;')+'" style="animation-delay:'+(n*14)+'ms" tabindex="0" onclick="mpClickProv(\''+safe+'\')"><title></title><rect x="'+x+'" y="'+y+'" width="'+Sz+'" height="'+Sz+'" rx="9"></rect><text x="'+(x+Sz/2)+'" y="'+(y+Sz/2+4)+'" text-anchor="middle" class="mp-ab">'+L[3]+'</text></g>';n++;}document.getElementById('mapSvg').innerHTML=h;}
+function mpColor(rate,max){if(rate==null||!max)return null;var t=Math.min(1,Math.sqrt(rate/max));var S=[[27,58,107],[30,136,200],[35,198,160],[242,193,78],[242,128,46],[232,64,46]];var seg=t*(S.length-1),i=Math.floor(seg),f=seg-i;if(i>=S.length-1){i=S.length-2;f=1;}var a=S[i],b=S[i+1];return 'rgb('+a.map(function(v,k){return Math.round(v+(b[k]-v)*f);}).join(',')+')';}
+function mpRender(){var g=mpSex;var idx=mpName?mpGetIdx(g)[mpName.toUpperCase()]:null;var max=0,maxine=null;if(idx){for(var k in idx){if(idx[k]>max){max=idx[k];maxine=k;}}}document.querySelectorAll('#mapSvg .mp-tile').forEach(function(el){var ine=el.dataset.ine,L=MAP_LAYOUT[ine];var rate=idx?(idx[ine]==null?null:idx[ine]):null;var rect=el.querySelector('rect');if(idx&&rate!=null){var c=mpColor(rate,max);rect.style.fill=c;el.style.setProperty('--gc',c);el.classList.add('heat');}else{rect.style.fill='';el.style.removeProperty('--gc');el.classList.remove('heat');}el.classList.toggle('nod',!!(idx&&rate==null));el.classList.toggle('hot',ine===maxine);var tt=L[2];if(idx)tt+=rate!=null?': '+rate+'‰':': sin dato';el.querySelector('title').textContent=tt;});var meta=document.getElementById('mapMeta'),leg=document.getElementById('mapLegend');if(mpName){meta.innerHTML='<div class="spec-meta"><strong>'+mpTitle(mpName)+'</strong> — dónde es más frecuente (por 1.000 '+(g==='H'?'niños':'niñas')+' empadronados). Más brillante = más común.</div>';leg.innerHTML=max?'<span>frío</span><i class="lg-bar"></i><span>caliente ('+max.toFixed(1)+'‰)</span>':'<span>Este nombre no está en el top de ninguna provincia.</span>';}else{meta.innerHTML='<div class="spec-meta">Toca una provincia para ver sus nombres, o escribe un nombre arriba para encender el mapa de calor.</div>';leg.innerHTML='';}}
 function mpSetSex(s){mpSex=s;document.querySelectorAll('#mapSexPills .pill').forEach(function(b,i){b.className='pill'+(i===0&&s==='H'?' on-n':i===1&&s==='F'?' on-f':'');});mpRender();if(mpCurProv)mpClickProv(mpCurProv);}
 function mpOnName(v){mpName=(v||'').trim();mpRender();}
 function mpClear(){mpName='';document.getElementById('mapNameInput').value='';mpRender();}
