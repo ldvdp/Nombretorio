@@ -1,0 +1,16 @@
+# Datos fuente pesados — el sitio (index.html) es autocontenido y no los necesita
+02_DatosFuente/
+0-prenom.csv
+1-patronymes.csv
+file_report.csv
+*.xls
+*.xlsx
+*.xlsm
+*.pdf
+
+# Copias de seguridad de trabajo
+*.bak*
+
+# Sistema
+Thumbs.db
+.DS_Store

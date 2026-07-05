@@ -1,0 +1,13 @@
+country,status,official_source,local_asset,notes
+Espana,confirmed,INE,,Apellidos y nombres mas frecuentes
+Francia,confirmed,INSEE,0-prenom.csv,Ya usado en la web con conteos reales
+Italia,confirmed,Istat SDMXWS,Convertitore-Query-SEP-1.7.xlsm,Via oficial preparada pero no explotada aun
+Union Europea,confirmed,UE-27 official country list,,Marco de alcance
+Alemania,pending,Destatis,,Pendiente de verificacion
+Austria,pending,Statistik Austria,,Pendiente de verificacion
+Belgica,pending,Statbel,,Pendiente de verificacion
+Dinamarca,pending,Statistics Denmark,,Pendiente de verificacion
+Irlanda,pending,Central Statistics Office,,Pendiente de verificacion
+Paises Bajos,pending,CBS,,Pendiente de verificacion
+Portugal,pending,IRN admitted names list + INE Portugal for frequency layer,,Ya visible en web como bloque onomastico portugues reforzado; falta capa oficial de frecuencia
+Suecia,pending,SCB,,Pendiente de verificacion
