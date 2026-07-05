@@ -14,3 +14,6 @@ file_report.csv
 # Sistema
 Thumbs.db
 .DS_Store
+
+# Carpeta de referencia (librerías COBE/globe.gl) — no necesaria para el sitio
+Planetas del Mundo/
