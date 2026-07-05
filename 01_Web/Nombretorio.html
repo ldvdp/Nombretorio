@@ -768,7 +768,7 @@ function gInit(){
         .ringColor(function(d){var c=gRgb(d.c).slice(4,-1);return function(t){return 'rgba('+c+','+(1-t)+')';};});
     function gResize(){var w=Math.max(260,Math.min(490,el.clientWidth||420));GW.width(w).height(w);}
     gResize(); window.addEventListener('resize',gResize);
-    var c=GW.controls(); c.autoRotate=true; c.autoRotateSpeed=0.55; c.enableZoom=true; c.minDistance=170; c.maxDistance=480;
+    var c=GW.controls(); c.autoRotate=true; c.autoRotateSpeed=0.45; c.enableZoom=true; c.enableDamping=true; c.dampingFactor=0.12; c.rotateSpeed=0.85; c.minDistance=170; c.maxDistance=480;var cvEl=el.querySelector("canvas"); if(cvEl){cvEl.style.cursor="grab"; cvEl.addEventListener("pointerdown",function(){c.autoRotate=false;cvEl.style.cursor="grabbing";clearTimeout(window._gr);}); window.addEventListener("pointerup",function(){cvEl.style.cursor="grab";clearTimeout(window._gr);window._gr=setTimeout(function(){if(GW)GW.controls().autoRotate=true;},7000);});}
     GW.pointOfView({lat:18,lng:5,altitude:2.3});
     gBuildRegions();
     document.getElementById('gPanel').innerHTML='<p class="gph-empty">Toca una región del globo o de la lista para ver sus nombres.</p>';
