@@ -248,8 +248,8 @@ tr:hover td{background:#F7F4EF}
 .globe-flex{display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;background:radial-gradient(120% 120% at 72% 6%,#2a1c46 0%,#161029 52%,#090613 100%);border-radius:22px;padding:20px;position:relative;overflow:hidden;box-shadow:inset 0 0 80px rgba(0,0,0,.6),0 14px 44px rgba(10,8,25,.3)}
 .globe-flex::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(180,170,255,.10) 1px,transparent 1px);background-size:22px 22px;-webkit-mask-image:radial-gradient(120% 120% at 40% 10%,#000,transparent 78%);mask-image:radial-gradient(120% 120% at 40% 10%,#000,transparent 78%);pointer-events:none}
 .globe-stage{flex:1 1 420px;min-width:290px;display:flex;flex-direction:column;align-items:center;position:relative;z-index:1}
-#cobeGlobe{width:100%;max-width:470px;aspect-ratio:1/1;cursor:grab;touch-action:none;filter:drop-shadow(0 0 30px rgba(120,90,255,.3))}
-#cobeGlobe:active{cursor:grabbing}
+#globeViz{width:100%;max-width:490px;margin:0 auto;filter:drop-shadow(0 0 34px rgba(120,90,255,.35))}
+#globeViz canvas{display:block;border-radius:50%}
 .globe-hint{margin-top:8px;font-size:.7rem;color:#8781b8;letter-spacing:.5px}
 .globe-hud{flex:1 1 250px;min-width:240px;display:flex;flex-direction:column;gap:12px;position:relative;z-index:1}
 .ghud-regions{display:flex;flex-wrap:wrap;gap:7px}
@@ -447,7 +447,7 @@ tr:hover td{background:#F7F4EF}
   <div class="spec-lead"><div class="spec-lead-badge">&#127760;</div><div><strong>Nombres del mundo</strong><p>Gira el globo (arr&aacute;stralo con el rat&oacute;n) y elige una regi&oacute;n para ver sus nombres. El globo <strong>vuela</strong> hacia la zona que toques.</p></div></div>
   <div class="map-controls"><div class="pills" id="gSexPills"><button class="pill on-n" onclick="gSetSex('n')">Ni&ntilde;os</button><button class="pill" onclick="gSetSex('f')">Ni&ntilde;as</button></div></div>
   <div class="globe-flex">
-    <div class="globe-stage"><canvas id="cobeGlobe"></canvas><div class="globe-hint">arrastra para girar &middot; elige una regi&oacute;n</div></div>
+    <div class="globe-stage"><div id="globeViz"></div><div class="globe-hint">arrastra para girar &middot; rueda para zoom &middot; elige una regi&oacute;n</div></div>
     <div class="globe-hud">
       <div class="ghud-regions" id="gRegions"></div>
       <div class="ghud-panel" id="gPanel"><p class="gph-empty">Toca una regi&oacute;n del globo o de la lista para ver sus nombres.</p></div>
@@ -733,44 +733,46 @@ function mpClear(){mpName='';document.getElementById('mapNameInput').value='';mp
 function mpClickProv(ine){mpCurProv=ine;var list=PROV_DATA[mpSex][ine]||[],disp=MAP_LAYOUT[ine][2];var rows=list.slice(0,15).map(function(p,i){return '<div class="mp-row"><span class="mp-rk">'+(i+1)+'</span><span class="mp-nm">'+mpTitle(p[0])+'</span><span class="mp-rt">'+(p[1]!=null?p[1]+'‰':'')+'</span></div>';}).join('');document.getElementById('mapPanel').innerHTML='<div class="mp-ph"><strong>'+disp+'</strong><span>'+(mpSex==='H'?'niños':'niñas')+' · nombres más frecuentes</span></div>'+(rows||'<p style="color:#9a8f7f;font-size:.85rem">Sin datos.</p>');document.querySelectorAll('#mapSvg .mp-tile').forEach(function(el){el.classList.toggle('sel',el.dataset.ine===ine);});}
 
 
-var G=null,gPhi=4.6,gTheta=0.25,gAutoRot=true,gTgtPhi=null,gTgtTheta=null,gSex='n',gDragging=false,gLX=0,gLY=0,gSel=-1;
+var GW=null,gSex='n',gSel=-1;
 var GREG=[
- {l:'Am&eacute;rica',lat:-4,lng:-70,s:'O',k:'america',c:[0.32,0.9,0.5]},
- {l:'&Aacute;frica',lat:4,lng:20,s:'O',k:'africa',c:[1,0.66,0.22]},
+ {l:'América',lat:-4,lng:-70,s:'O',k:'america',c:[0.32,0.9,0.5]},
+ {l:'África',lat:4,lng:20,s:'O',k:'africa',c:[1,0.66,0.22]},
  {l:'Asia',lat:32,lng:95,s:'O',k:'asia',c:[1,0.36,0.46]},
- {l:'Ocean&iacute;a',lat:-24,lng:140,s:'O',k:'oceania',c:[0.36,0.8,1]},
+ {l:'Oceanía',lat:-24,lng:140,s:'O',k:'oceania',c:[0.36,0.8,1]},
  {l:'Italia',lat:42,lng:13,s:'C',k:'italia',c:[0.5,0.85,0.55]},
  {l:'Francia',lat:47,lng:2,s:'C',k:'francia',c:[0.5,0.6,1]},
  {l:'Portugal',lat:39,lng:-8,s:'C',k:'portugal',c:[0.4,0.85,0.72]},
  {l:'Alemania',lat:51,lng:10,s:'C',k:'alemania',c:[0.92,0.86,0.4]},
- {l:'Ruman&iacute;a',lat:46,lng:25,s:'C',k:'rumania',c:[1,0.82,0.32]},
+ {l:'Rumanía',lat:46,lng:25,s:'C',k:'rumania',c:[1,0.82,0.32]},
  {l:'Ucrania',lat:49,lng:32,s:'C',k:'ucrania',c:[0.5,0.72,1]},
  {l:'Croacia',lat:45,lng:16,s:'C',k:'croacia',c:[0.8,0.52,1]},
- {l:'Pa&iacute;ses Bajos',lat:52,lng:5,s:'C',k:'paisesbajos',c:[1,0.6,0.3]}
+ {l:'Países Bajos',lat:52,lng:5,s:'C',k:'paisesbajos',c:[1,0.6,0.3]}
 ];
 function gRgb(c){return 'rgb('+Math.round(c[0]*255)+','+Math.round(c[1]*255)+','+Math.round(c[2]*255)+')';}
-function gMarkers(){return GREG.map(function(r,i){return {location:[r.lat,r.lng],size:i===gSel?0.11:0.05,color:r.c};});}
 function gInit(){
-  if(G) return;
-  var canvas=document.getElementById('cobeGlobe');
-  document.getElementById('gPanel').innerHTML='<p class="gph-empty">Cargando globo&hellip;</p>';
-  import('https://cdn.jsdelivr.net/npm/cobe@2.0.1/+esm').then(function(mod){
-    var createGlobe=mod.default;
-    var w=Math.min(470,(canvas.parentElement.clientWidth||400));
-    canvas.width=w*2;canvas.height=w*2;canvas.style.width=w+'px';canvas.style.height=w+'px';
-    G=createGlobe(canvas,{devicePixelRatio:2,width:w*2,height:w*2,phi:gPhi,theta:gTheta,dark:1,diffuse:1.25,mapSamples:16000,mapBrightness:5,mapBaseBrightness:0.08,baseColor:[0.29,0.31,0.58],markerColor:[1,0.72,0.32],glowColor:[0.45,0.4,0.85],scale:1,markers:gMarkers(),
-      onRender:function(state){
-        if(gTgtPhi!=null){gPhi+=(gTgtPhi-gPhi)*0.09;if(Math.abs(gTgtPhi-gPhi)<0.003){gPhi=gTgtPhi;gTgtPhi=null;}}
-        else if(gAutoRot&&!gDragging){gPhi+=0.0035;}
-        if(gTgtTheta!=null){gTheta+=(gTgtTheta-gTheta)*0.09;if(Math.abs(gTgtTheta-gTheta)<0.003){gTheta=gTgtTheta;gTgtTheta=null;}}
-        state.phi=gPhi;state.theta=gTheta;state.width=w*2;state.height=w*2;
-      }});
-    canvas.onpointerdown=function(e){gDragging=true;gAutoRot=false;gTgtPhi=null;gTgtTheta=null;gLX=e.clientX;gLY=e.clientY;try{canvas.setPointerCapture(e.pointerId);}catch(x){}};
-    canvas.onpointermove=function(e){if(!gDragging)return;gPhi-=(e.clientX-gLX)*0.006;gTheta=Math.max(-1.3,Math.min(1.3,gTheta+(e.clientY-gLY)*0.006));gLX=e.clientX;gLY=e.clientY;};
-    canvas.onpointerup=function(e){gDragging=false;clearTimeout(window._gr);window._gr=setTimeout(function(){gAutoRot=true;},3000);};
+  if(GW) return;
+  var el=document.getElementById('globeViz');
+  document.getElementById('gPanel').innerHTML='<p class="gph-empty">Cargando globo 3D&hellip;</p>';
+  import('https://esm.sh/globe.gl@2.46.1').then(function(mod){
+    var Globe=mod.default;
+    GW=Globe()(el)
+      .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
+      .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
+      .backgroundColor('rgba(0,0,0,0)')
+      .showAtmosphere(true).atmosphereColor('#8a7bff').atmosphereAltitude(0.2)
+      .pointsData(GREG).pointLat('lat').pointLng('lng').pointColor(function(d){return gRgb(d.c);})
+        .pointAltitude(function(d){return GREG.indexOf(d)===gSel?0.12:0.05;}).pointRadius(0.6).pointsMerge(false)
+        .pointLabel(function(d){return '<div style="font:600 13px sans-serif;color:#fff;background:rgba(20,16,40,.85);padding:4px 9px;border-radius:8px;border:1px solid '+gRgb(d.c)+'">'+d.l+'</div>';})
+        .onPointClick(function(d){gSelect(GREG.indexOf(d));})
+      .ringsData(GREG).ringLat('lat').ringLng('lng').ringMaxRadius(2.6).ringPropagationSpeed(1.3).ringRepeatPeriod(1500)
+        .ringColor(function(d){var c=gRgb(d.c).slice(4,-1);return function(t){return 'rgba('+c+','+(1-t)+')';};});
+    function gResize(){var w=Math.max(260,Math.min(490,el.clientWidth||420));GW.width(w).height(w);}
+    gResize(); window.addEventListener('resize',gResize);
+    var c=GW.controls(); c.autoRotate=true; c.autoRotateSpeed=0.55; c.enableZoom=true; c.minDistance=170; c.maxDistance=480;
+    GW.pointOfView({lat:18,lng:5,altitude:2.3});
     gBuildRegions();
-    document.getElementById('gPanel').innerHTML='<p class="gph-empty">Toca una regi&oacute;n del globo o de la lista para ver sus nombres.</p>';
-  }).catch(function(err){document.getElementById('gPanel').innerHTML='<p class="gph-empty">No se pudo cargar el globo 3D (revisa la conexi&oacute;n). '+err+'</p>';});
+    document.getElementById('gPanel').innerHTML='<p class="gph-empty">Toca una región del globo o de la lista para ver sus nombres.</p>';
+  }).catch(function(err){document.getElementById('gPanel').innerHTML='<p class="gph-empty">No se pudo cargar el globo 3D (revisa la conexión). '+err+'</p>';});
 }
 function gBuildRegions(){
   document.getElementById('gRegions').innerHTML=GREG.map(function(r,i){
@@ -778,19 +780,17 @@ function gBuildRegions(){
   }).join('');
 }
 function gSelect(i){
-  gSel=i;var r=GREG[i];gAutoRot=false;
-  gTgtPhi=Math.PI-r.lng*Math.PI/180;
-  gTgtTheta=Math.max(-1.1,Math.min(1.1,r.lat*Math.PI/180));
-  if(G)G.update({markers:gMarkers()});
-  gBuildRegions();gShowNames(r);
-  clearTimeout(window._gr);window._gr=setTimeout(function(){gAutoRot=true;},4500);
+  if(i<0) return; gSel=i; var r=GREG[i];
+  if(GW){ GW.controls().autoRotate=false; GW.pointOfView({lat:r.lat,lng:r.lng,altitude:1.55},1100); GW.pointsData(GREG);
+    clearTimeout(window._gr); window._gr=setTimeout(function(){if(GW)GW.controls().autoRotate=true;},5000); }
+  gBuildRegions(); gShowNames(r);
 }
 function gShowNames(r){
   var src=r.s==='O'?ORIGEN_DATA:COUNTRY_DATA;
   var arr=(gSex==='n'?src.n:src.f).filter(function(x){return x.k===r.k;});
   if(r.s==='O'&&src.u){arr=arr.concat(src.u.filter(function(x){return x.k===r.k;}));}
   var rows=arr.slice(0,50).map(function(x){return '<div class="grow"><div class="grow-n">'+x.n+' <span class="grow-c">'+x.cat+'</span></div><div class="grow-d">'+x.d+'</div></div>';}).join('');
-  document.getElementById('gPanel').innerHTML='<div class="gph"><strong>'+r.l+'</strong><span>'+(gSex==='n'?'ni&ntilde;os':'ni&ntilde;as')+' &middot; '+arr.length+' nombres</span></div>'+(rows||'<p class="gph-empty">Sin nombres para esta vista.</p>');
+  document.getElementById('gPanel').innerHTML='<div class="gph"><strong>'+r.l+'</strong><span>'+(gSex==='n'?'niños':'niñas')+' &middot; '+arr.length+' nombres</span></div>'+(rows||'<p class="gph-empty">Sin nombres para esta vista.</p>');
 }
 function gSetSex(s){gSex=s;document.querySelectorAll('#gSexPills .pill').forEach(function(b,i){b.className='pill'+(i===0&&s==='n'?' on-n':i===1&&s==='f'?' on-f':'');});if(gSel>=0)gShowNames(GREG[gSel]);}
 function mapMode(m){
@@ -798,9 +798,8 @@ function mapMode(m){
   document.getElementById('mapMundo').style.display=(m==='mun')?'':'none';
   document.getElementById('modeEsp').classList.toggle('on',m==='esp');
   document.getElementById('modeMun').classList.toggle('on',m==='mun');
-  if(m==='mun')gInit();
+  if(m==='mun') gInit();
 }
-
 </script>
 </body>
 </html>
