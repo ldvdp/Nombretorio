@@ -264,6 +264,11 @@ tr:hover td{background:#F7F4EF}
 .grow-n{font-weight:600;color:#fff;font-size:.92rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .grow-c{font-size:.68rem;color:#c3b8ff;background:rgba(150,130,255,.14);padding:1px 8px;border-radius:9px;font-weight:600}
 .grow-d{font-size:.77rem;color:#a09dc8;margin-top:3px;line-height:1.45}
+.greg-grp{margin-bottom:8px}
+.greg-h{display:block;font-size:.64rem;text-transform:uppercase;letter-spacing:1.2px;color:#8b88b8;margin:2px 0 5px;font-weight:700}
+.greg-row{display:flex;flex-wrap:wrap;gap:6px}
+.greg{padding:5px 10px;font-size:.76rem}
+.ghud-regions{display:block;max-height:210px;overflow:auto;padding-right:4px}
 </style>
 </head>
 <body>
@@ -734,21 +739,61 @@ function mpClickProv(ine){mpCurProv=ine;var list=PROV_DATA[mpSex][ine]||[],disp=
 
 
 var GW=null,gSex='n',gSel=-1;
+var AME=[0.32,0.9,0.5],AFR=[1,0.62,0.22],ASI=[1,0.36,0.46],OCE=[0.36,0.8,1],EUR=[0.6,0.63,1],HIS=[1,0.82,0.35];
 var GREG=[
- {l:'América',lat:-4,lng:-70,s:'O',k:'america',c:[0.32,0.9,0.5]},
- {l:'África',lat:4,lng:20,s:'O',k:'africa',c:[1,0.66,0.22]},
- {l:'Asia',lat:32,lng:95,s:'O',k:'asia',c:[1,0.36,0.46]},
- {l:'Oceanía',lat:-24,lng:140,s:'O',k:'oceania',c:[0.36,0.8,1]},
- {l:'Italia',lat:42,lng:13,s:'C',k:'italia',c:[0.5,0.85,0.55]},
- {l:'Francia',lat:47,lng:2,s:'C',k:'francia',c:[0.5,0.6,1]},
- {l:'Portugal',lat:39,lng:-8,s:'C',k:'portugal',c:[0.4,0.85,0.72]},
- {l:'Alemania',lat:51,lng:10,s:'C',k:'alemania',c:[0.92,0.86,0.4]},
- {l:'Rumanía',lat:46,lng:25,s:'C',k:'rumania',c:[1,0.82,0.32]},
- {l:'Ucrania',lat:49,lng:32,s:'C',k:'ucrania',c:[0.5,0.72,1]},
- {l:'Croacia',lat:45,lng:16,s:'C',k:'croacia',c:[0.8,0.52,1]},
- {l:'Países Bajos',lat:52,lng:5,s:'C',k:'paisesbajos',c:[1,0.6,0.3]}
+ {l:'Mexica',lat:19,lng:-99,g:'América',c:AME,s:'O',k:'america',cm:'Mexica|Texcoco|Pur'},
+ {l:'Maya',lat:18,lng:-89,g:'América',c:AME,s:'O',k:'america',cm:'Maya'},
+ {l:'Andes (inca)',lat:-13,lng:-72,g:'América',c:AME,s:'O',k:'america',cm:'Inca'},
+ {l:'Caribe (taíno)',lat:18,lng:-70,g:'América',c:AME,s:'O',k:'america',cm:'Ta'},
+ {l:'Norteamérica',lat:42,lng:-100,g:'América',c:AME,s:'O',k:'america',cm:'Shawnee|Apache|Iroqu|Powhatan|Shoshone'},
+ {l:'Oeste africano',lat:12,lng:-2,g:'África',c:AFR,s:'O',k:'africa',cm:'Mal|Sahel|Mand|Yoruba|Akan'},
+ {l:'Suajili (este)',lat:-4,lng:37,g:'África',c:AFR,s:'O',k:'africa',cm:'Suajili|Kenia|oriental'},
+ {l:'Austral',lat:-28,lng:26,g:'África',c:AFR,s:'O',k:'africa',cm:'Zul|Sotho|Tswana'},
+ {l:'Etiopía',lat:9,lng:40,g:'África',c:AFR,s:'O',k:'africa',cm:'Etiop'},
+ {l:'Madagascar',lat:-19,lng:47,g:'África',c:AFR,s:'O',k:'africa',cm:'Madagascar'},
+ {l:'Indochina',lat:16,lng:103,g:'Asia',c:ASI,s:'O',k:'asia',cm:'Myanmar|Tailandia|Laos|Camboya|Vietnam'},
+ {l:'Insulindia',lat:0,lng:113,g:'Asia',c:ASI,s:'O',k:'asia',cm:'Malasia|malayo|Indonesia|Brun|Timor'},
+ {l:'Filipinas',lat:13,lng:122,g:'Asia',c:ASI,s:'O',k:'asia',cm:'Filipinas'},
+ {l:'Sri Lanka y Maldivas',lat:7,lng:80,g:'Asia',c:ASI,s:'O',k:'asia',cm:'Sri Lanka|Maldivas'},
+ {l:'Maorí',lat:-41,lng:173,g:'Oceanía',c:OCE,s:'O',k:'oceania',cm:'Maor'},
+ {l:'Polinesia',lat:-17,lng:-149,g:'Oceanía',c:OCE,s:'O',k:'oceania',cm:'Polinesia|Haw|Tah|Samoa|Tonga'},
+ {l:'Australia',lat:-25,lng:134,g:'Oceanía',c:OCE,s:'O',k:'oceania',cm:'Australia'},
+ {l:'Melanesia y Micronesia',lat:-6,lng:158,g:'Oceanía',c:OCE,s:'O',k:'oceania',cm:'Melanesia|Micronesia|Fiyi|Pap|Pac'},
+ {l:'Italia',lat:42,lng:13,g:'Europa',c:EUR,s:'C',k:'italia'},
+ {l:'Francia',lat:47,lng:2,g:'Europa',c:EUR,s:'C',k:'francia'},
+ {l:'Portugal',lat:39,lng:-8,g:'Europa',c:EUR,s:'C',k:'portugal'},
+ {l:'Irlanda',lat:53,lng:-8,g:'Europa',c:EUR,s:'C',k:'irlanda'},
+ {l:'Nórdicos',lat:61,lng:15,g:'Europa',c:EUR,s:'C',k:'nordicos'},
+ {l:'Centroeuropa',lat:48,lng:14,g:'Europa',c:EUR,s:'C',k:'centroeuropa'},
+ {l:'Alemania',lat:51,lng:10,g:'Europa',c:EUR,s:'C',k:'alemania'},
+ {l:'Países Bajos',lat:52,lng:5,g:'Europa',c:EUR,s:'C',k:'paisesbajos'},
+ {l:'Rumanía',lat:46,lng:25,g:'Europa',c:EUR,s:'C',k:'rumania'},
+ {l:'Croacia',lat:45,lng:16,g:'Europa',c:EUR,s:'C',k:'croacia'},
+ {l:'Ucrania',lat:49,lng:32,g:'Europa',c:EUR,s:'C',k:'ucrania'},
+ {l:'Eslavos',lat:44,lng:20,g:'Europa',c:EUR,s:'C',k:'eslavos'},
+ {l:'Íberos',lat:40,lng:-3,g:'Historia',c:HIS,s:'H',k:'ibero'},
+ {l:'Celtas',lat:42,lng:-6,g:'Historia',c:HIS,s:'H',k:'celtico'},
+ {l:'Galos',lat:47,lng:3,g:'Historia',c:HIS,s:'H',k:'galo'},
+ {l:'Britanos',lat:53,lng:-2,g:'Historia',c:HIS,s:'H',k:'britano'},
+ {l:'Dacios',lat:45,lng:24,g:'Historia',c:HIS,s:'H',k:'dacio'},
+ {l:'Visigodos',lat:41,lng:-5,g:'Historia',c:HIS,s:'H',k:'visigodo'},
+ {l:'Grecia antigua',lat:39,lng:23,g:'Historia',c:HIS,s:'W',k:'grecia'},
+ {l:'Roma antigua',lat:42,lng:12,g:'Historia',c:HIS,s:'W',k:'roma'},
+ {l:'Egipto antiguo',lat:26,lng:30,g:'Historia',c:HIS,s:'W',k:'egipto'},
+ {l:'Persia',lat:32,lng:53,g:'Historia',c:HIS,s:'W',k:'persia'}
+];
+var GARC=[
+ [40,-3,18,-70,EUR],[12,-2,18,-70,AFR],[42,12,26,30,HIS],[32,53,39,23,HIS],
+ [42,12,12,-2,HIS],[-13,-72,-17,-149,AME],[16,103,0,113,ASI],[-17,-149,-41,173,OCE],
+ [-4,37,7,80,AFR],[42,-3,53,-2,HIS],[47,2,53,-2,EUR],[49,32,44,20,EUR],[19,-99,42,-100,AME]
 ];
 function gRgb(c){return 'rgb('+Math.round(c[0]*255)+','+Math.round(c[1]*255)+','+Math.round(c[2]*255)+')';}
+var GSRC={O:'ORIGEN_DATA',C:'COUNTRY_DATA',H:'HIST_DATA',W:'WORLD_DATA'};
+function gData(r){var m={O:ORIGEN_DATA,C:COUNTRY_DATA,H:HIST_DATA,W:WORLD_DATA};return m[r.s];}
+function gNames(r){var s=gData(r),g=gSex==='n'?'n':'f',re=r.cm?new RegExp(r.cm,'i'):null;
+ var arr=s[g].filter(function(x){return x.k===r.k&&(!re||re.test(x.cat));});
+ if(r.s==='O'&&s.u){arr=arr.concat(s.u.filter(function(x){return x.k===r.k&&(!re||re.test(x.cat));}));}
+ return arr;}
 function gInit(){
   if(GW) return;
   var el=document.getElementById('globeViz');
@@ -756,41 +801,46 @@ function gInit(){
   import('https://esm.sh/globe.gl@2.46.1').then(function(mod){
     var Globe=mod.default;
     GW=Globe()(el)
-      .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
+      .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-night.jpg')
       .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
       .backgroundColor('rgba(0,0,0,0)')
       .showAtmosphere(true).atmosphereColor('#8a7bff').atmosphereAltitude(0.2)
       .pointsData(GREG).pointLat('lat').pointLng('lng').pointColor(function(d){return gRgb(d.c);})
-        .pointAltitude(function(d){return GREG.indexOf(d)===gSel?0.12:0.05;}).pointRadius(0.6).pointsMerge(false)
-        .pointLabel(function(d){return '<div style="font:600 13px sans-serif;color:#fff;background:rgba(20,16,40,.85);padding:4px 9px;border-radius:8px;border:1px solid '+gRgb(d.c)+'">'+d.l+'</div>';})
+        .pointAltitude(function(d){return GREG.indexOf(d)===gSel?0.14:0.045;}).pointRadius(0.55).pointsMerge(false)
+        .pointLabel(function(d){return '<div style="font:600 12px sans-serif;color:#fff;background:rgba(18,14,36,.9);padding:3px 8px;border-radius:8px;border:1px solid '+gRgb(d.c)+'">'+d.l+'</div>';})
         .onPointClick(function(d){gSelect(GREG.indexOf(d));})
-      .ringsData(GREG).ringLat('lat').ringLng('lng').ringMaxRadius(2.6).ringPropagationSpeed(1.3).ringRepeatPeriod(1500)
+      .arcsData(GARC).arcStartLat(function(d){return d[0];}).arcStartLng(function(d){return d[1];}).arcEndLat(function(d){return d[2];}).arcEndLng(function(d){return d[3];})
+        .arcColor(function(d){var c=gRgb(d[4]);return [c.replace('rgb','rgba').replace(')',',0)'),c.replace('rgb','rgba').replace(')',',0.85)')];})
+        .arcStroke(0.5).arcAltitudeAutoScale(0.4).arcDashLength(0.5).arcDashGap(1).arcDashInitialGap(function(){return Math.random();}).arcDashAnimateTime(2600)
+      .ringsData(GREG).ringLat('lat').ringLng('lng').ringMaxRadius(2.2).ringPropagationSpeed(1.2).ringRepeatPeriod(1700)
         .ringColor(function(d){var c=gRgb(d.c).slice(4,-1);return function(t){return 'rgba('+c+','+(1-t)+')';};});
     function gResize(){var w=Math.max(260,Math.min(490,el.clientWidth||420));GW.width(w).height(w);}
-    gResize(); window.addEventListener('resize',gResize);
-    var c=GW.controls(); c.autoRotate=true; c.autoRotateSpeed=0.45; c.enableZoom=true; c.enableDamping=true; c.dampingFactor=0.12; c.rotateSpeed=0.85; c.minDistance=170; c.maxDistance=480;var cvEl=el.querySelector("canvas"); if(cvEl){cvEl.style.cursor="grab"; cvEl.addEventListener("pointerdown",function(){c.autoRotate=false;cvEl.style.cursor="grabbing";clearTimeout(window._gr);}); window.addEventListener("pointerup",function(){cvEl.style.cursor="grab";clearTimeout(window._gr);window._gr=setTimeout(function(){if(GW)GW.controls().autoRotate=true;},7000);});}
+    gResize();window.addEventListener('resize',gResize);
+    var c=GW.controls(); c.autoRotate=true; c.autoRotateSpeed=0.45; c.enableZoom=true; c.enableDamping=true; c.dampingFactor=0.12; c.rotateSpeed=0.85; c.minDistance=170; c.maxDistance=480;
+    var cvEl=el.querySelector('canvas'); if(cvEl){cvEl.style.cursor='grab'; cvEl.addEventListener('pointerdown',function(){c.autoRotate=false;cvEl.style.cursor='grabbing';clearTimeout(window._gr);}); window.addEventListener('pointerup',function(){cvEl.style.cursor='grab';clearTimeout(window._gr);window._gr=setTimeout(function(){if(GW)GW.controls().autoRotate=true;},7000);});}
     GW.pointOfView({lat:18,lng:5,altitude:2.3});
     gBuildRegions();
-    document.getElementById('gPanel').innerHTML='<p class="gph-empty">Toca una región del globo o de la lista para ver sus nombres.</p>';
+    document.getElementById('gPanel').innerHTML='<p class="gph-empty">Toca una región (en el globo o en la lista) para ver sus nombres.</p>';
   }).catch(function(err){document.getElementById('gPanel').innerHTML='<p class="gph-empty">No se pudo cargar el globo 3D (revisa la conexión). '+err+'</p>';});
 }
 function gBuildRegions(){
-  document.getElementById('gRegions').innerHTML=GREG.map(function(r,i){
-    return '<button class="greg'+(i===gSel?' on':'')+'"'+(i===gSel?' style="--gc:'+gRgb(r.c)+'"':'')+' onclick="gSelect('+i+')"><span class="gdot" style="color:'+gRgb(r.c)+'"></span>'+r.l+'</button>';
+  var groups=[],seen={};GREG.forEach(function(r){if(!seen[r.g]){seen[r.g]=1;groups.push(r.g);}});
+  var html=groups.map(function(g){
+    var btns=GREG.map(function(r,i){return r.g===g?'<button class="greg'+(i===gSel?' on':'')+'"'+(i===gSel?' style="--gc:'+gRgb(r.c)+'"':'')+' onclick="gSelect('+i+')"><span class="gdot" style="color:'+gRgb(r.c)+'"></span>'+r.l+'</button>':'';}).join('');
+    return '<div class="greg-grp"><span class="greg-h">'+g+'</span><div class="greg-row">'+btns+'</div></div>';
   }).join('');
+  document.getElementById('gRegions').innerHTML=html;
 }
 function gSelect(i){
   if(i<0) return; gSel=i; var r=GREG[i];
-  if(GW){ GW.controls().autoRotate=false; GW.pointOfView({lat:r.lat,lng:r.lng,altitude:1.55},1100); GW.pointsData(GREG);
-    clearTimeout(window._gr); window._gr=setTimeout(function(){if(GW)GW.controls().autoRotate=true;},5000); }
+  if(GW){ GW.controls().autoRotate=false; GW.pointOfView({lat:r.lat,lng:r.lng,altitude:1.5},1100); GW.pointsData(GREG);
+    clearTimeout(window._gr); window._gr=setTimeout(function(){if(GW)GW.controls().autoRotate=true;},6000); }
   gBuildRegions(); gShowNames(r);
 }
 function gShowNames(r){
-  var src=r.s==='O'?ORIGEN_DATA:COUNTRY_DATA;
-  var arr=(gSex==='n'?src.n:src.f).filter(function(x){return x.k===r.k;});
-  if(r.s==='O'&&src.u){arr=arr.concat(src.u.filter(function(x){return x.k===r.k;}));}
-  var rows=arr.slice(0,50).map(function(x){return '<div class="grow"><div class="grow-n">'+x.n+' <span class="grow-c">'+x.cat+'</span></div><div class="grow-d">'+x.d+'</div></div>';}).join('');
-  document.getElementById('gPanel').innerHTML='<div class="gph"><strong>'+r.l+'</strong><span>'+(gSex==='n'?'niños':'niñas')+' &middot; '+arr.length+' nombres</span></div>'+(rows||'<p class="gph-empty">Sin nombres para esta vista.</p>');
+  var arr=gNames(r);
+  var rows=arr.slice(0,60).map(function(x){return '<div class="grow"><div class="grow-n">'+x.n+' <span class="grow-c">'+x.cat+'</span></div><div class="grow-d">'+x.d+'</div></div>';}).join('');
+  document.getElementById('gPanel').innerHTML='<div class="gph"><strong>'+r.l+'</strong><span>'+r.g+' &middot; '+(gSex==='n'?'niños':'niñas')+' &middot; '+arr.length+' nombres</span></div>'+(rows||'<p class="gph-empty">Sin nombres para esta vista.</p>');
 }
 function gSetSex(s){gSex=s;document.querySelectorAll('#gSexPills .pill').forEach(function(b,i){b.className='pill'+(i===0&&s==='n'?' on-n':i===1&&s==='f'?' on-f':'');});if(gSel>=0)gShowNames(GREG[gSel]);}
 function mapMode(m){
