@@ -794,15 +794,16 @@ function gNames(r){var s=gData(r),g=gSex==='n'?'n':'f',re=r.cm?new RegExp(r.cm,'
  var arr=s[g].filter(function(x){return x.k===r.k&&(!re||re.test(x.cat));});
  if(r.s==='O'&&s.u){arr=arr.concat(s.u.filter(function(x){return x.k===r.k&&(!re||re.test(x.cat));}));}
  return arr;}
+function gLoadLib(cb){if(window.Globe)return cb();var s=document.createElement('script');s.src='/globe.gl.min.js';s.onload=cb;s.onerror=function(){document.getElementById('gPanel').innerHTML='<p class="gph-empty">No se pudo cargar el globo (falta /globe.gl.min.js).</p>';};document.head.appendChild(s);}
 function gInit(){
   if(GW) return;
   var el=document.getElementById('globeViz');
   document.getElementById('gPanel').innerHTML='<p class="gph-empty">Cargando globo 3D&hellip;</p>';
-  import('https://esm.sh/globe.gl@2.46.1').then(function(mod){
-    var Globe=mod.default;
+  gLoadLib(function(){
+    var Globe=window.Globe;
     GW=Globe()(el)
-      .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-night.jpg')
-      .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
+      .globeImageUrl('/earth-night.jpg')
+      .bumpImageUrl('/earth-topology.png')
       .backgroundColor('rgba(0,0,0,0)')
       .showAtmosphere(true).atmosphereColor('#8a7bff').atmosphereAltitude(0.2)
       .pointsData(GREG).pointLat('lat').pointLng('lng').pointColor(function(d){return gRgb(d.c);})
@@ -821,7 +822,7 @@ function gInit(){
     GW.pointOfView({lat:18,lng:5,altitude:2.3});
     gBuildRegions();
     document.getElementById('gPanel').innerHTML='<p class="gph-empty">Toca una región (en el globo o en la lista) para ver sus nombres.</p>';
-  }).catch(function(err){document.getElementById('gPanel').innerHTML='<p class="gph-empty">No se pudo cargar el globo 3D (revisa la conexión). '+err+'</p>';});
+  });
 }
 function gBuildRegions(){
   var groups=[],seen={};GREG.forEach(function(r){if(!seen[r.g]){seen[r.g]=1;groups.push(r.g);}});
