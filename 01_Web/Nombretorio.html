@@ -350,6 +350,11 @@ body:not(.home) .hero-embers{opacity:.5}
 .hero-home{display:none;position:absolute;top:14px;left:16px;z-index:5;align-items:center;gap:5px;padding:7px 13px;border-radius:20px;border:1px solid rgba(202,161,78,.42);background:rgba(20,14,8,.42);color:#f2e6cf;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);transition:border-color .15s,background .15s,transform .12s}
 .hero-home:hover{border-color:rgba(235,192,112,.9);background:rgba(44,30,16,.6);transform:translateY(-1px)}
 body:not(.home) .hero-home{display:inline-flex}
+.nc-share{position:absolute;bottom:7px;left:8px;border:none;background:transparent;cursor:pointer;font-size:.9rem;line-height:1;padding:2px 5px;border-radius:8px;opacity:.3;transition:opacity .16s,background .16s,transform .16s}
+.nc:hover .nc-share{opacity:.7}
+.nc-share:hover{opacity:1;background:rgba(201,168,76,.16);transform:translateY(-1px)}
+.sh5{border:none;background:transparent;cursor:pointer;font-size:.82rem;line-height:1;padding:1px 4px;margin-left:6px;border-radius:7px;opacity:.4;vertical-align:middle;transition:opacity .16s,background .16s}
+.sh5:hover{opacity:1;background:rgba(201,168,76,.18)}
 </style>
 </head>
 <body class="home">
@@ -715,6 +720,7 @@ function render(){
       <div class="spk"><canvas style="width:100%;display:block" data-c="${col}" data-v="${item.y.join(',')}"></canvas></div>
       <div class="mt2">${tTag||''}<span class="fr">${d23>0?fmt(d23)+' en 2023':d19>0?fmt(d19)+' en 2019':''}</span></div>
       <span class="fs">${fav?'&#10024;':'&#10025;'}</span>
+      <button class="nc-share" title="Compartir" onclick="event.stopPropagation();openShare('${item.n.replace(/'/g,"\\'")}','','${d23>0?fmt(d23)+' nacimientos en 2023':'uno de los m&aacute;s puestos en Espa&ntilde;a'}')">&#128279;</button>
     </div>`;
   }).join('');
 
@@ -796,7 +802,7 @@ function render5k(){
     const crossHint=g==='n'&&wSet.has(n.toLowerCase())?'<span title="Tambi&eacute;n existe como nombre de mujer" style="font-size:.75rem;color:#9C27B0;margin-left:5px">&#10024;</span>':g==='f'&&mSet.has(n.toLowerCase())?'<span title="Tambi&eacute;n existe como nombre de hombre" style="font-size:.75rem;color:#1565C0;margin-left:5px">&#10024;</span>':'';
     return `<tr>
       <td>${rb(r,g)}</td>
-      <td><strong style="font-family:Playfair Display,serif">${hl(n,q5)}</strong>${crossHint}</td>
+      <td><strong style="font-family:Playfair Display,serif">${hl(n,q5)}</strong>${crossHint}<button class="sh5" title="Compartir" onclick="openShare('${n.replace(/'/g,"\\'")}','','${g==='n'?'nombre de hombre &middot; puesto '+r+' en Espa&ntilde;a':'nombre de mujer &middot; puesto '+r+' en Espa&ntilde;a'}')">&#128279;</button></td>
       <td><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;min-width:60px;max-width:120px;height:6px;background:var(--bo);border-radius:3px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${barCol};border-radius:3px"></div></div><span style="font-size:.72rem;color:var(--mu);white-space:nowrap">${pct}%</span></div></td>
       <td><strong>${fmt(t)}</strong> <span style="font-size:.7rem;color:var(--mu)">${(t/25e6*1000).toFixed(2)}&#8240;</span></td>
     </tr>`;
