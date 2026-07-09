@@ -305,6 +305,8 @@ tr:hover td{background:#F7F4EF}
 .sc,#gPanel .grow,#mapPanel .mp-row{cursor:pointer}
 #gPanel .grow:hover,#mapPanel .mp-row:hover{background:rgba(255,255,255,.05)}
 .sc:hover{outline:1px solid rgba(192,81,26,.35);outline-offset:-1px}
+.ftr-visits{margin-top:12px;font-size:.72rem;color:#b7a684;letter-spacing:.4px}
+.ftr-visits strong{color:#c0511a;font-weight:700;font-variant-numeric:tabular-nums}
 </style>
 </head>
 <body>
@@ -527,6 +529,7 @@ tr:hover td{background:#F7F4EF}
     <span>Datos: INE &middot; INSEE &middot; Istat</span>
   </div>
   <div class="ftr-sub">Nombretorio &mdash; explorador de nombres. Proyecto personal de c&oacute;digo abierto con datos oficiales p&uacute;blicos.</div>
+  <div class="ftr-visits" id="visitWrap" style="display:none">&#128065;&#65039; <strong id="visitCount">&mdash;</strong> visitas</div>
 </footer>
 <script>
 
@@ -953,6 +956,7 @@ shmDeleg('gPanel','.grow',function(c){ var n=c.querySelector('.grow-n'); var nm=
 shmDeleg('mapPanel','.mp-row',function(c){ var nm=(c.querySelector('.mp-nm')||{}).textContent||''; var rt=(c.querySelector('.mp-rt')||{}).textContent||''; var prov=(document.querySelector('#mapPanel .mp-ph strong')||{}).textContent||''; openShare(nm,'&#128205; '+prov,'De los nombres más frecuentes en '+prov+(rt?' ('+rt+')':'')+'.'); });
 document.addEventListener('keydown',function(e){ if(e.key==='Escape') document.getElementById('shareModal').style.display='none'; });
 
+(function(){var el=document.getElementById('visitCount');if(!el)return;var base='https://abacus.jasoncameron.dev',ns='nombretorio-ldvdp/visits';var isNew=!sessionStorage.getItem('nbt_v');fetch(base+(isNew?'/hit/':'/get/')+ns).then(function(r){return r.json();}).then(function(d){if(d&&typeof d.value==='number'){el.textContent=d.value.toLocaleString('es-ES');var w=document.getElementById('visitWrap');if(w)w.style.display='';if(isNew){try{sessionStorage.setItem('nbt_v','1');}catch(e){}}}}).catch(function(){});})();
 </script>
 </body>
 </html>
