@@ -17,3 +17,6 @@ Thumbs.db
 
 # Carpeta de referencia (librerías COBE/globe.gl) — no necesaria para el sitio
 Planetas del Mundo/
+
+# GeoJSON fuente (las rutas ya van embebidas en el HTML)
+*.geojson
