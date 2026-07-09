@@ -307,9 +307,22 @@ tr:hover td{background:#F7F4EF}
 .sc:hover{outline:1px solid rgba(192,81,26,.35);outline-offset:-1px}
 .ftr-visits{margin-top:12px;font-size:.72rem;color:#b7a684;letter-spacing:.4px}
 .ftr-visits strong{color:#c0511a;font-weight:700;font-variant-numeric:tabular-nums}
+body.home .nav-w,body.home .main,body.home .ftr{display:none!important}
+body.home .hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding-top:24px;padding-bottom:24px}
+body.home .hero::before{display:none}
+body:not(.home) .hero-menu{display:none}
+.hero-title{cursor:pointer;transition:filter .2s}
+body:not(.home) .hero-title:hover{filter:drop-shadow(0 2px 1px rgba(0,0,0,.55)) drop-shadow(0 0 40px rgba(233,152,58,.7))}
+.hero-menu{display:none;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;max-width:660px;margin:36px auto 4px;padding:0 6px;position:relative;z-index:3}
+body.home .hero-menu{display:grid}
+.hme{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:2px;padding:15px 17px;border-radius:15px;border:1px solid rgba(202,161,78,.32);background:linear-gradient(160deg,rgba(42,31,18,.62),rgba(22,16,9,.55));color:#f2e6cf;cursor:pointer;transition:transform .16s,box-shadow .16s,border-color .16s,background .16s;-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+.hme:hover{border-color:rgba(232,190,110,.85);background:linear-gradient(160deg,rgba(62,45,24,.72),rgba(34,24,14,.62));transform:translateY(-3px);box-shadow:0 12px 28px rgba(120,80,30,.32),0 0 22px rgba(212,160,80,.2)}
+.hme-i{font-size:1.4rem;margin-bottom:3px}
+.hme-t{font-family:'Cinzel',serif;font-weight:700;font-size:1.02rem;color:#f7dba6;letter-spacing:.02em}
+.hme-s{font-size:.735rem;color:rgba(233,205,155,.62);line-height:1.35}
 </style>
 </head>
-<body>
+<body class="home">
 <div class="hero">
   <svg class="hero-vista" viewBox="0 0 1200 420" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
     <defs>
@@ -334,9 +347,17 @@ tr:hover td{background:#F7F4EF}
   <div class="hero-grain" aria-hidden="true"></div>
   <div class="hero-inner">
     <span class="hero-crest">&#10024; &#128118; &#10024;</span>
-    <h1 class="hero-title">Nombretorio</h1>
+    <h1 class="hero-title" onclick="goHome()" title="Volver al inicio">Nombretorio</h1>
     <svg class="hero-flourish" viewBox="0 0 260 22" aria-hidden="true"><g fill="none" stroke="#caa14e" stroke-width="1.4"><path d="M12,11 H102"/><path d="M158,11 H248"/></g><path d="M130,3 L138,11 130,19 122,11Z" fill="#caa14e"/><circle cx="106" cy="11" r="2.6" fill="#caa14e"/><circle cx="154" cy="11" r="2.6" fill="#caa14e"/></svg>
     <div class="hero-tag">nombres de todo el mundo</div>
+    <div class="hero-menu">
+      <button class="hme" onclick="goApp('s1')"><span class="hme-i">&#128200;</span><span class="hme-t">Tendencias</span><span class="hme-s">Los nombres m&aacute;s puestos en Espa&ntilde;a</span></button>
+      <button class="hme" onclick="goApp('s6')"><span class="hme-i">&#128506;&#65039;</span><span class="hme-t">Mapa</span><span class="hme-s">Espa&ntilde;a en pergamino y el globo del mundo</span></button>
+      <button class="hme" onclick="goApp('s4')"><span class="hme-i">&#10024;</span><span class="hme-t">Especiales</span><span class="hme-s">Prerromanos, del mundo, b&iacute;blicos&hellip;</span></button>
+      <button class="hme" onclick="goApp('s5')"><span class="hme-i">&#128290;</span><span class="hme-t">5.000 nombres</span><span class="hme-s">El ranking completo</span></button>
+      <button class="hme" onclick="goApp('s2')"><span class="hme-i">&#128483;&#65039;</span><span class="hme-t">Lenguas</span><span class="hme-s">Nombres por lengua de Espa&ntilde;a</span></button>
+      <button class="hme" onclick="goApp('s3')"><span class="hme-i">&#127760;</span><span class="hme-t">Multiling&uuml;e</span><span class="hme-s">El mismo nombre en varios idiomas</span></button>
+    </div>
   </div>
 </div>
 <div class="nav-w">
@@ -992,6 +1013,8 @@ function mk(init){return {x:Math.random()*W,y:init?Math.random()*H:H+Math.random
 for(var i=0;i<36;i++)parts.push(mk(true));
 function tick(){ctx.clearRect(0,0,W,H);for(var i=0;i<parts.length;i++){var p=parts[i];p.y-=p.vy;p.x+=p.vx;p.life++;var tt=p.life/p.max;if(p.y<-8||tt>=1){parts[i]=mk(false);continue;}var al=(p.a*(1-tt)).toFixed(3);ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.283);ctx.fillStyle='rgba(255,'+(150+Math.floor(70*(1-tt)))+',95,'+al+')';ctx.shadowColor='rgba(255,150,60,'+al+')';ctx.shadowBlur=7;ctx.fill();}requestAnimationFrame(tick);}
 requestAnimationFrame(tick);})();
+function goApp(id){document.body.classList.remove('home');var tab=[].slice.call(document.querySelectorAll('.tab')).filter(function(x){return (x.getAttribute('onclick')||'').indexOf("'"+id+"'")>=0;})[0];if(tab)showSec(tab,id);window.scrollTo(0,0);}
+function goHome(){document.body.classList.add('home');window.scrollTo(0,0);}
 </script>
 </body>
 </html>
