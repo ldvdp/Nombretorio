@@ -346,10 +346,15 @@ body:not(.home) .hero-flourish{display:none}
 body:not(.home) .hero-tag{display:none}
 body:not(.home) .hero-vista{height:62%;opacity:.55}
 body:not(.home) .hero-embers{opacity:.5}
+.hero-title{-webkit-user-select:none;user-select:none}
+.hero-home{display:none;position:absolute;top:14px;left:16px;z-index:5;align-items:center;gap:5px;padding:7px 13px;border-radius:20px;border:1px solid rgba(202,161,78,.42);background:rgba(20,14,8,.42);color:#f2e6cf;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);transition:border-color .15s,background .15s,transform .12s}
+.hero-home:hover{border-color:rgba(235,192,112,.9);background:rgba(44,30,16,.6);transform:translateY(-1px)}
+body:not(.home) .hero-home{display:inline-flex}
 </style>
 </head>
 <body class="home">
 <div class="hero">
+  <button class="hero-home" onclick="goHome()" title="Volver al inicio">&#8962; inicio</button>
   <svg class="hero-vista" viewBox="0 0 1200 420" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
     <defs>
       <radialGradient id="hSun" cx="50%" cy="93%" r="62%">
