@@ -400,6 +400,8 @@ body.home .fav-fab{display:none!important}
 .fav-clear{background:none;border:none;color:#b06a5a;font-size:.76rem;cursor:pointer;text-decoration:underline;margin-bottom:4px}
 .fav-empty{color:#9a8f7c;font-size:.86rem;padding:24px 8px;text-align:center;line-height:1.6}
 .gd2.gu{background:#c9a84c}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.tab:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--gd);outline-offset:2px;border-radius:6px}
+@media(max-width:480px){.fav-fab{right:12px;bottom:12px;padding:9px 14px;font-size:.82rem}.shm-card{padding:24px 18px 16px}.fav-title{font-size:1.28rem}.nd-l{font-size:.54rem}}
 </style>
 </head>
 <body class="home">
@@ -628,7 +630,7 @@ body.home .fav-fab{display:none!important}
 </div>
 
 
-<button class="fav-fab" id="favFab" onclick="openFavs()" style="display:none">&#9733; <span id="favFabN">0</span></button>
+<button class="fav-fab" id="favFab" onclick="openFavs()" aria-label="Ver mis nombres favoritos" style="display:none">&#9733; <span id="favFabN">0</span></button>
 <div id="favModal" class="shm" onclick="closeFavs(event)">
   <div class="shm-card fav-card">
     <button class="shm-x" onclick="closeFavs()" aria-label="Cerrar">&times;</button>
@@ -783,7 +785,7 @@ function render(){
       <div class="spk"><canvas style="width:100%;display:block" data-c="${col}" data-v="${item.y.join(',')}"></canvas></div>
       <div class="mt2">${tTag||''}<span class="fr">${d23>0?fmt(d23)+' en 2023':d19>0?fmt(d19)+' en 2019':''}</span></div>
       <span class="fs">${fav?'&#10024;':'&#10025;'}</span>
-      <button class="nc-share" title="Compartir" onclick="event.stopPropagation();openShare('${item.n.replace(/'/g,"\\'")}','','${d23>0?fmt(d23)+' nacimientos en 2023':'uno de los m&aacute;s puestos en Espa&ntilde;a'}')">&#128279;</button>
+      <button class="nc-share" title="Compartir" aria-label="Compartir nombre" onclick="event.stopPropagation();openShare('${item.n.replace(/'/g,"\\'")}','','${d23>0?fmt(d23)+' nacimientos en 2023':'uno de los m&aacute;s puestos en Espa&ntilde;a'}')">&#128279;</button>
     </div>`;
   }).join('');
 
@@ -865,7 +867,7 @@ function render5k(){
     const crossHint=g==='n'&&wSet.has(n.toLowerCase())?'<span title="Tambi&eacute;n existe como nombre de mujer" style="font-size:.75rem;color:#9C27B0;margin-left:5px">&#10024;</span>':g==='f'&&mSet.has(n.toLowerCase())?'<span title="Tambi&eacute;n existe como nombre de hombre" style="font-size:.75rem;color:#1565C0;margin-left:5px">&#10024;</span>':'';
     return `<tr>
       <td>${rb(r,g)}</td>
-      <td><strong style="font-family:Playfair Display,serif">${hl(n,q5)}</strong>${crossHint}<button class="sh5" title="Compartir" onclick="openShare('${n.replace(/'/g,"\\'")}','','${g==='n'?'nombre de hombre &middot; puesto '+r+' en Espa&ntilde;a':'nombre de mujer &middot; puesto '+r+' en Espa&ntilde;a'}')">&#128279;</button></td>
+      <td><strong style="font-family:Playfair Display,serif">${hl(n,q5)}</strong>${crossHint}<button class="sh5" title="Compartir" aria-label="Compartir nombre" onclick="openShare('${n.replace(/'/g,"\\'")}','','${g==='n'?'nombre de hombre &middot; puesto '+r+' en Espa&ntilde;a':'nombre de mujer &middot; puesto '+r+' en Espa&ntilde;a'}')">&#128279;</button></td>
       <td><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;min-width:60px;max-width:120px;height:6px;background:var(--bo);border-radius:3px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${barCol};border-radius:3px"></div></div><span style="font-size:.72rem;color:var(--mu);white-space:nowrap">${pct}%</span></div></td>
       <td><strong>${fmt(t)}</strong> <span style="font-size:.7rem;color:var(--mu)">${(t/25e6*1000).toFixed(2)}&#8240;</span></td>
     </tr>`;
@@ -1101,7 +1103,7 @@ function shmDeleg(id,sel,fn){ var el=document.getElementById(id); if(el) el.addE
 shmDeleg('specGrid','.sc',function(c){ openShare((c.querySelector('.sc-n')||{}).innerHTML,(c.querySelector('.sc-cat')||{}).innerHTML,(c.querySelector('.sc-d')||{}).innerHTML); });
 shmDeleg('gPanel','.grow',function(c){ var n=c.querySelector('.grow-n'); var nm=n&&n.childNodes[0]?n.childNodes[0].textContent:''; openShare(nm,(c.querySelector('.grow-c')||{}).innerHTML,(c.querySelector('.grow-d')||{}).innerHTML); });
 shmDeleg('mapPanel','.mp-row',function(c){ var nm=(c.querySelector('.mp-nm')||{}).textContent||''; var rt=(c.querySelector('.mp-rt')||{}).textContent||''; var prov=(document.querySelector('#mapPanel .mp-ph strong')||{}).textContent||''; openShare(nm,'&#128205; '+prov,'De los nombres más frecuentes en '+prov+(rt?' ('+rt+')':'')+'.'); });
-document.addEventListener('keydown',function(e){ if(e.key==='Escape') document.getElementById('shareModal').style.display='none'; });
+document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ ['shareModal','favModal'].forEach(function(id){var m=document.getElementById(id); if(m)m.style.display='none';}); } });
 
 (function(){var el=document.getElementById('visitCount');if(!el)return;var base='https://abacus.jasoncameron.dev',ns='nombretorio-ldvdp/visits';var isNew=!sessionStorage.getItem('nbt_v');fetch(base+(isNew?'/hit/':'/get/')+ns).then(function(r){return r.json();}).then(function(d){if(d&&typeof d.value==='number'){el.textContent=d.value.toLocaleString('es-ES');var w=document.getElementById('visitWrap');if(w)w.style.display='';if(isNew){try{sessionStorage.setItem('nbt_v','1');}catch(e){}}}}).catch(function(){});})();
 
@@ -1177,7 +1179,7 @@ function renderFavPanel(){
     return '<div class="fav-item"><span class="gd2 '+gi+'"></span>'+
       '<button class="fav-name" onclick="closeFavs();openShare(\''+esc+'\')">'+f.n+'</button>'+
       '<span class="fav-mini">'+(mini.join(' &middot; ')||'&mdash;')+'</span>'+
-      '<button class="fav-rm" title="Quitar" onclick="rmFav(\''+esc+'\')">&times;</button></div>';
+      '<button class="fav-rm" title="Quitar" aria-label="Quitar de favoritos" onclick="rmFav(\''+esc+'\')">&times;</button></div>';
   }).join('');
 }
 function favText(){ return 'Mis nombres favoritos:\n'+favs.map(function(f){return '✨ '+f.n;}).join('\n')+'\n\nExplora más en https://nombretorio.vercel.app/'; }
