@@ -285,6 +285,26 @@ tr:hover td{background:#F7F4EF}
 #mapEspana .mp-nm{color:#3a2410}#mapEspana .mp-rt{color:#8a6a35}
 #mapEspana .map-legend{color:#7a5a2a}
 #mapEspana .lg-bar{background:linear-gradient(90deg,#e9d6aa,#c9962f,#8c2819);box-shadow:0 0 8px rgba(150,100,40,.4)}
+.shm{display:none;position:fixed;inset:0;z-index:9999;background:rgba(20,14,8,.55);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:18px;animation:shmIn .18s ease}
+@keyframes shmIn{from{opacity:0}to{opacity:1}}
+.shm-card{position:relative;width:min(400px,94vw);background:linear-gradient(165deg,#fffaf0,#f6ecd8);border:1px solid #e7d9bd;border-radius:22px;padding:30px 26px 20px;text-align:center;box-shadow:0 24px 60px rgba(50,30,10,.32);animation:shmPop .28s cubic-bezier(.34,1.56,.64,1)}
+@keyframes shmPop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.shm-x{position:absolute;top:12px;right:14px;border:none;background:none;font-size:1.5rem;line-height:1;color:#b7a684;cursor:pointer}
+.shm-x:hover{color:#8a6a35}
+.shm-badge{font-size:1.5rem;margin-bottom:2px}
+.shm-cat{font-size:.72rem;color:#c0511a;font-weight:700;text-transform:uppercase;letter-spacing:1px;min-height:14px}
+.shm-name{font-family:Georgia,'Times New Roman',serif;font-size:2.3rem;font-weight:700;color:#2a2118;margin:2px 0 8px;line-height:1.1}
+.shm-desc{font-size:.9rem;color:#6b6152;line-height:1.5;margin-bottom:18px;min-height:8px}
+.shm-share-lbl{font-size:.68rem;text-transform:uppercase;letter-spacing:1.5px;color:#a99a7c;margin-bottom:9px}
+.shm-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.shm-btn{display:inline-flex;align-items:center;gap:5px;padding:9px 13px;border-radius:12px;font-size:.82rem;font-weight:600;text-decoration:none;border:none;cursor:pointer;color:#fff;transition:transform .12s,filter .12s}
+.shm-btn:hover{transform:translateY(-2px);filter:brightness(1.06)}
+.shm-btn.wa{background:#25d366}.shm-btn.tg{background:#29a9eb}.shm-btn.xx{background:#111}.shm-btn.cp{background:#c0511a}
+.shm-native{margin-top:11px;width:100%;padding:11px;border:none;border-radius:12px;background:#2a2118;color:#fff;font-weight:600;font-size:.88rem;cursor:pointer}
+.shm-foot{margin-top:15px;font-size:.72rem;color:#b7a684;letter-spacing:.3px}
+.sc,#gPanel .grow,#mapPanel .mp-row{cursor:pointer}
+#gPanel .grow:hover,#mapPanel .mp-row:hover{background:rgba(255,255,255,.05)}
+.sc:hover{outline:1px solid rgba(192,81,26,.35);outline-offset:-1px}
 </style>
 </head>
 <body>
@@ -478,6 +498,25 @@ tr:hover td{background:#F7F4EF}
 
 </div>
 
+
+<div id="shareModal" class="shm" onclick="closeShare(event)">
+  <div class="shm-card">
+    <button class="shm-x" onclick="closeShare()" aria-label="Cerrar">&times;</button>
+    <div class="shm-badge">&#10024;</div>
+    <div class="shm-cat" id="shmCat"></div>
+    <div class="shm-name" id="shmName"></div>
+    <div class="shm-desc" id="shmDesc"></div>
+    <div class="shm-share-lbl">Compartir</div>
+    <div class="shm-actions">
+      <a id="shmWa" class="shm-btn wa" target="_blank" rel="noopener">&#128172; WhatsApp</a>
+      <a id="shmTg" class="shm-btn tg" target="_blank" rel="noopener">&#9993;&#65039; Telegram</a>
+      <a id="shmX" class="shm-btn xx" target="_blank" rel="noopener">&#10005; X</a>
+      <button id="shmCopy" class="shm-btn cp" onclick="shmCopyLink()">&#128203; Copiar</button>
+    </div>
+    <button id="shmNative" class="shm-native" onclick="shmNativeShare()" style="display:none">&#128228; Compartir&hellip;</button>
+    <div class="shm-foot">nombretorio.vercel.app</div>
+  </div>
+</div>
 
 <footer class="ftr">
   <div class="ftr-in">
@@ -887,6 +926,33 @@ function mapMode(m){
   document.getElementById('modeMun').classList.toggle('on',m==='mun');
   if(m==='mun') gInit();
 }
+
+function shmDecode(s){var d=document.createElement('textarea');d.innerHTML=(s||'');return d.value;}
+function openShare(name,cat,desc){
+  var nm=shmDecode(name).trim(); if(!nm) return;
+  var dd=shmDecode(desc||'').trim();
+  document.getElementById('shmName').textContent=nm;
+  document.getElementById('shmCat').innerHTML=cat||'';
+  document.getElementById('shmDesc').textContent=dd;
+  var url='https://nombretorio.vercel.app/';
+  var txt='✨ '+nm+(dd?' — '+dd:'')+'\n\nDescubre más nombres en '+url;
+  window._shmTxt=txt; window._shmName=nm;
+  var e=encodeURIComponent(txt);
+  document.getElementById('shmWa').href='https://wa.me/?text='+e;
+  document.getElementById('shmTg').href='https://t.me/share/url?url='+encodeURIComponent(url)+'&text='+encodeURIComponent('✨ '+nm+(dd?' — '+dd:''));
+  document.getElementById('shmX').href='https://twitter.com/intent/tweet?text='+e;
+  document.getElementById('shmNative').style.display=navigator.share?'block':'none';
+  document.getElementById('shareModal').style.display='flex';
+}
+function closeShare(ev){ if(!ev || ev.target.id==='shareModal' || (''+ (ev.target.className||'')).indexOf('shm-x')>=0){ document.getElementById('shareModal').style.display='none'; } }
+function shmNativeShare(){ if(navigator.share){ navigator.share({title:'Nombretorio · '+window._shmName,text:window._shmTxt,url:'https://nombretorio.vercel.app/'}).catch(function(){}); } }
+function shmCopyLink(){ var b=document.getElementById('shmCopy'); var done=function(){b.innerHTML='&#10003; Copiado';setTimeout(function(){b.innerHTML='&#128203; Copiar';},1600);}; if(navigator.clipboard){navigator.clipboard.writeText(window._shmTxt||'').then(done).catch(function(){});} }
+function shmDeleg(id,sel,fn){ var el=document.getElementById(id); if(el) el.addEventListener('click',function(e){ var c=e.target.closest(sel); if(c) fn(c); }); }
+shmDeleg('specGrid','.sc',function(c){ openShare((c.querySelector('.sc-n')||{}).innerHTML,(c.querySelector('.sc-cat')||{}).innerHTML,(c.querySelector('.sc-d')||{}).innerHTML); });
+shmDeleg('gPanel','.grow',function(c){ var n=c.querySelector('.grow-n'); var nm=n&&n.childNodes[0]?n.childNodes[0].textContent:''; openShare(nm,(c.querySelector('.grow-c')||{}).innerHTML,(c.querySelector('.grow-d')||{}).innerHTML); });
+shmDeleg('mapPanel','.mp-row',function(c){ var nm=(c.querySelector('.mp-nm')||{}).textContent||''; var rt=(c.querySelector('.mp-rt')||{}).textContent||''; var prov=(document.querySelector('#mapPanel .mp-ph strong')||{}).textContent||''; openShare(nm,'&#128205; '+prov,'De los nombres más frecuentes en '+prov+(rt?' ('+rt+')':'')+'.'); });
+document.addEventListener('keydown',function(e){ if(e.key==='Escape') document.getElementById('shareModal').style.display='none'; });
+
 </script>
 </body>
 </html>
