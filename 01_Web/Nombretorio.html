@@ -383,6 +383,23 @@ body:not(.home) .hero-home{display:inline-flex}
 .nd-langs{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
 .nd-lang{font-size:.72rem;background:#fff;border:1px solid #ece0c8;border-radius:20px;padding:4px 11px;color:#8a8072}
 .nd-lang b{color:#2a2118;font-family:'Playfair Display',serif;font-weight:700}
+.fav-fab{position:fixed;right:18px;bottom:18px;z-index:9000;display:flex;align-items:center;gap:6px;font-family:'Cinzel',serif;font-weight:700;font-size:.9rem;color:#3a2c12;background:linear-gradient(150deg,#f6d885,#d9a94a);border:1px solid #c9a84c;border-radius:30px;padding:11px 17px;cursor:pointer;box-shadow:0 8px 22px rgba(140,100,30,.35);transition:transform .16s,box-shadow .16s}
+.fav-fab:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(140,100,30,.45)}
+body.home .fav-fab{display:none!important}
+.fav-card{width:min(470px,94vw);text-align:center}
+.fav-title{font-family:'Cinzel',serif;font-size:1.5rem;color:#2a2118;margin:2px 0 12px}
+.fav-list{text-align:left;max-height:46vh;overflow-y:auto;margin-bottom:14px}
+.fav-item{display:flex;align-items:center;gap:9px;padding:9px 6px;border-bottom:1px solid #efe4cf}
+.fav-item:last-child{border-bottom:none}
+.fav-name{flex:0 0 auto;background:none;border:none;cursor:pointer;font-family:'Playfair Display',serif;font-size:1.06rem;font-weight:700;color:#2a2118;padding:0}
+.fav-name:hover{color:#c0511a;text-decoration:underline}
+.fav-mini{flex:1;text-align:right;font-size:.74rem;color:#9a8f7c;white-space:nowrap}
+.fav-rm{flex:0 0 auto;background:none;border:none;cursor:pointer;color:#b9a98a;font-size:1.2rem;line-height:1;padding:0 4px}
+.fav-rm:hover{color:#c0392b}
+.fav-acts{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:10px}
+.fav-clear{background:none;border:none;color:#b06a5a;font-size:.76rem;cursor:pointer;text-decoration:underline;margin-bottom:4px}
+.fav-empty{color:#9a8f7c;font-size:.86rem;padding:24px 8px;text-align:center;line-height:1.6}
+.gd2.gu{background:#c9a84c}
 </style>
 </head>
 <body class="home">
@@ -611,6 +628,22 @@ body:not(.home) .hero-home{display:inline-flex}
 </div>
 
 
+<button class="fav-fab" id="favFab" onclick="openFavs()" style="display:none">&#9733; <span id="favFabN">0</span></button>
+<div id="favModal" class="shm" onclick="closeFavs(event)">
+  <div class="shm-card fav-card">
+    <button class="shm-x" onclick="closeFavs()" aria-label="Cerrar">&times;</button>
+    <div class="shm-cat">&#9733; Mi lista</div>
+    <div class="fav-title">Mis nombres favoritos</div>
+    <div class="fav-list" id="favList"></div>
+    <div class="fav-acts">
+      <a id="favWa" class="shm-btn wa" target="_blank" rel="noopener">&#128172; Compartir</a>
+      <button class="shm-btn cp" onclick="favCopy()">&#128203; Copiar</button>
+      <button class="shm-btn tg" onclick="favDownload()">&#11015;&#65039; Descargar</button>
+    </div>
+    <button class="fav-clear" onclick="favClear()">Vaciar lista</button>
+    <div class="shm-foot">nombretorio.vercel.app</div>
+  </div>
+</div>
 <div id="shareModal" class="shm" onclick="closeShare(event)">
   <div class="shm-card">
     <button class="shm-x" onclick="closeShare()" aria-label="Cerrar">&times;</button>
@@ -692,6 +725,7 @@ function clrFavs(){favs=[];try{localStorage.setItem('nfx',JSON.stringify(favs));
 function fmt(n){return Number(n).toLocaleString('es-ES')}
 
 function renderFavs(){
+  try{renderFavPanel();}catch(e){}
   const c=document.getElementById('fc'),b=document.getElementById('bcf');
   if(!favs.length){c.innerHTML='<span class="fe-l">Toca un nombre para guardarlo</span>';b.style.display='none';return;}
   b.style.display='';
@@ -1126,6 +1160,32 @@ function renderNameDetail(nm){
     h+='<div class="nd-sec"><div class="nd-h">En otros idiomas</div><div class="nd-langs">'+ks.map(function(k){return '<span class="nd-lang"><b>'+d.trans[k]+'</b> '+k+'</span>';}).join('')+'</div></div>';}
   el.innerHTML=h;
 }
+
+function renderFavPanel(){
+  var fab=document.getElementById('favFab'), n=favs.length;
+  if(fab){var nn=document.getElementById('favFabN'); if(nn)nn.textContent=n; fab.style.display=n?'flex':'none';}
+  var list=document.getElementById('favList'); if(!list)return;
+  var acts=document.querySelector('.fav-acts'), clr=document.querySelector('.fav-clear');
+  if(!n){ list.innerHTML='<div class="fav-empty">A&uacute;n no has guardado nombres.<br>Toca la <b>estrella</b> de cualquier nombre para a&ntilde;adirlo aqu&iacute;.</div>';
+    if(acts)acts.style.display='none'; if(clr)clr.style.display='none'; return; }
+  if(acts)acts.style.display=''; if(clr)clr.style.display='';
+  list.innerHTML=favs.map(function(f){
+    var d; try{d=nameDetail(f.n);}catch(e){d={};}
+    var g=d.gender||f.g, gi=g==='n'?'gn':g==='f'?'gf':'gu';
+    var mini=[]; if(d.rank!=null)mini.push('#'+d.rank); if(d.total!=null)mini.push(fmt(d.total));
+    var esc=(f.n+'').replace(/'/g,"\\'");
+    return '<div class="fav-item"><span class="gd2 '+gi+'"></span>'+
+      '<button class="fav-name" onclick="closeFavs();openShare(\''+esc+'\')">'+f.n+'</button>'+
+      '<span class="fav-mini">'+(mini.join(' &middot; ')||'&mdash;')+'</span>'+
+      '<button class="fav-rm" title="Quitar" onclick="rmFav(\''+esc+'\')">&times;</button></div>';
+  }).join('');
+}
+function favText(){ return 'Mis nombres favoritos:\n'+favs.map(function(f){return '✨ '+f.n;}).join('\n')+'\n\nExplora más en https://nombretorio.vercel.app/'; }
+function openFavs(){ renderFavPanel(); var wa=document.getElementById('favWa'); if(wa)wa.href='https://wa.me/?text='+encodeURIComponent(favText()); document.getElementById('favModal').style.display='flex'; }
+function closeFavs(ev){ if(ev&&ev.target!==ev.currentTarget&&!(ev.target.classList&&ev.target.classList.contains('shm-x')))return; var m=document.getElementById('favModal'); if(m)m.style.display='none'; }
+function favCopy(){ var txt=favText(); try{navigator.clipboard.writeText(txt);}catch(e){} var b=window.event&&window.event.target; if(b&&b.tagName==='BUTTON'){var o=b.innerHTML;b.innerHTML='&#10003; Copiado';setTimeout(function(){b.innerHTML=o;},1400);} }
+function favDownload(){ try{var blob=new Blob([favText()],{type:'text/plain;charset=utf-8'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='mis-nombres-favoritos.txt';document.body.appendChild(a);a.click();a.remove();}catch(e){} }
+function favClear(){ if(favs.length&&confirm('¿Vaciar tu lista de favoritos?')){ clrFavs(); } }
 </script>
 </body>
 </html>
