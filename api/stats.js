@@ -1,6 +1,5 @@
-// Registra una visita (una vez por sesión desde el cliente).
-// Guarda solo agregados anónimos: total, país (deducido por Vercel) y día.
-// NO guarda la IP ni usa cookies.
+// Lectura pública de estadísticas agregadas (no incrementa nada).
+// Devuelve total, visitas por día y por país. Sin datos personales, sin cookies.
 const TOTAL = "nombretorio:visits:total";
 const COUNTRIES = "nombretorio:visits:countries";
 const DAYS = "nombretorio:visits:days";
@@ -23,24 +22,34 @@ async function pipeline(commands) {
   return r.json();
 }
 
+function hashToObj(h) {
+  const o = {};
+  if (!h) return o;
+  if (Array.isArray(h)) {
+    for (let i = 0; i < h.length; i += 2) o[h[i]] = Number(h[i + 1]) || 0;
+  } else if (typeof h === "object") {
+    for (const k in h) o[k] = Number(h[k]) || 0;
+  }
+  return o;
+}
+
 export default async function handler(req, res) {
-  const country = ((req.headers["x-vercel-ip-country"] || "XX") + "").toUpperCase();
-  const day = new Date().toISOString().slice(0, 10);
   res.setHeader("cache-control", "no-store, max-age=0");
   try {
     const p = await pipeline([
-      ["INCR", TOTAL],
-      ["HINCRBY", COUNTRIES, country, 1],
-      ["HINCRBY", DAYS, day, 1],
       ["GET", TOTAL],
+      ["HGETALL", DAYS],
+      ["HGETALL", COUNTRIES],
     ]);
     if (!p) {
-      res.status(200).json({ ok: true, configured: false, total: null, country });
+      res.status(200).json({ configured: false });
       return;
     }
-    const total = Number((p[3] && p[3].result) || (p[0] && p[0].result) || 0);
-    res.status(200).json({ ok: true, configured: true, total, country, day });
+    const total = Number((p[0] && p[0].result) || 0);
+    const days = hashToObj(p[1] && p[1].result);
+    const countries = hashToObj(p[2] && p[2].result);
+    res.status(200).json({ configured: true, total, days, countries });
   } catch (e) {
-    res.status(200).json({ ok: false, configured: false, total: null, country, error: String((e && e.message) || e) });
+    res.status(200).json({ configured: false, error: String((e && e.message) || e) });
   }
 }

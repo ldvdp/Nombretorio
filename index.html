@@ -402,6 +402,42 @@ body.home .fav-fab{display:none!important}
 .gd2.gu{background:#c9a84c}
 a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.tab:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--gd);outline-offset:2px;border-radius:6px}
 @media(max-width:480px){.fav-fab{right:12px;bottom:12px;padding:9px 14px;font-size:.82rem}.shm-card{padding:24px 18px 16px}.fav-title{font-size:1.28rem}.nd-l{font-size:.54rem}}
+.ftr-visits{display:inline-flex;align-items:center;gap:6px;background:none;border:none;cursor:pointer;font-family:inherit;padding:5px 11px;border-radius:20px;transition:background .16s,color .16s}
+.ftr-visits:hover{background:rgba(201,168,76,.14);color:#b0872c}
+.ftr-vchev{font-size:1.05em;opacity:.55}
+.ftr-link{background:none;border:none;cursor:pointer;font:inherit;color:inherit;padding:0;text-decoration:underline;text-underline-offset:2px}
+.ftr-link:hover{color:#b0872c}
+.stats-card{width:min(500px,95vw);text-align:center}
+.cookie-card{width:min(480px,95vw);text-align:left}
+.stats-total{display:flex;flex-direction:column;align-items:center;margin:6px 0 2px}
+.stats-total strong{font-family:'Playfair Display',serif;font-size:2.4rem;color:#2a2118;line-height:1}
+.stats-total span{font-size:.7rem;color:#9a8f7c;letter-spacing:.04em;text-transform:uppercase;margin-top:2px}
+.stats-since{font-size:.78rem;color:#8a8072;margin-bottom:12px}
+.stats-ranges{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:10px}
+.st-rg{background:#fff;border:1px solid #e7d9bd;border-radius:20px;padding:6px 12px;font-size:.76rem;color:#6b6152;cursor:pointer;transition:all .15s}
+.st-rg:hover{border-color:#d9a94a;color:#2a2118}
+.st-rg.on{background:linear-gradient(150deg,#f6d885,#d9a94a);border-color:#c9a84c;color:#3a2c12;font-weight:600}
+.stats-rangeval{font-size:.92rem;color:#4a4236;margin-bottom:6px}
+.stats-rangeval strong{font-family:'Playfair Display',serif;font-size:1.2rem;color:#c0511a}
+.stats-block{margin-top:14px;text-align:left}
+.stats-chart{display:flex;align-items:flex-end;gap:2px;height:72px;padding:6px 4px 0;background:#fff;border:1px solid #ece0c8;border-radius:10px}
+.st-bar{flex:1 1 auto;min-width:2px;background:linear-gradient(180deg,#e2b658,#c9922f);border-radius:2px 2px 0 0;transition:opacity .15s}
+.st-bar:hover{opacity:.65}
+.stats-chart-x{display:flex;justify-content:space-between;font-size:.6rem;color:#9a8f7c;margin-top:3px}
+.st-cty{display:flex;align-items:center;gap:8px;padding:6px 2px;border-bottom:1px solid #efe4cf;font-size:.82rem}
+.st-cty:last-child{border-bottom:none}
+.st-flag{font-size:1.05rem;width:1.5em;text-align:center;flex:0 0 auto}
+.st-cname{flex:0 0 auto;color:#2a2118;min-width:92px}
+.st-cbar{flex:1;height:6px;background:#f0e7d6;border-radius:3px;overflow:hidden}
+.st-cbar>span{display:block;height:100%;background:linear-gradient(90deg,#e2b658,#c9922f);border-radius:3px}
+.st-ccount{flex:0 0 auto;font-size:.71rem;color:#8a8072;white-space:nowrap;min-width:74px;text-align:right}
+.stats-note{font-size:.74rem;color:#9a8f7c;margin-top:12px;line-height:1.5}
+.ck-title{font-family:'Cinzel',serif;font-size:1.4rem;color:#2a2118;margin:2px 0 12px;text-align:center}
+.ck-body{font-size:.86rem;color:#4a4236;line-height:1.6}
+.ck-body p{margin-bottom:10px}
+.ck-body ul{margin:0 0 10px 0;padding-left:20px}
+.ck-body li{margin-bottom:5px}
+.ck-body b{color:#2a2118}
 </style>
 </head>
 <body class="home">
@@ -673,10 +709,45 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.t
     <a href="https://github.com/ldvdp/Nombretorio" target="_blank" rel="noopener">C&oacute;digo en GitHub</a>
     <span class="ftr-dot">&middot;</span>
     <span>Datos: INE &middot; INSEE &middot; Istat</span>
+    <span class="ftr-dot">&middot;</span>
+    <button class="ftr-link" onclick="openCookies()">Cookies</button>
   </div>
   <div class="ftr-sub">Nombretorio &mdash; explorador de nombres. Proyecto personal de c&oacute;digo abierto con datos oficiales p&uacute;blicos.</div>
-  <div class="ftr-visits" id="visitWrap" style="display:none">&#128065;&#65039; <strong id="visitCount">&mdash;</strong> visitas</div>
+  <button class="ftr-visits" id="visitWrap" onclick="openStats()" title="Ver estad&iacute;sticas de visitas">&#128065;&#65039; <strong id="visitCount">&mdash;</strong> visitas <span class="ftr-vchev">&#8250;</span></button>
 </footer>
+<div id="statsModal" class="shm" onclick="closeStats(event)">
+  <div class="shm-card stats-card">
+    <button class="shm-x" onclick="closeStats()" aria-label="Cerrar">&times;</button>
+    <div class="shm-cat">&#128065;&#65039; Visitas</div>
+    <div class="stats-total"><strong id="stTotal">&mdash;</strong><span>visitas en total</span></div>
+    <div class="stats-since" id="stSince"></div>
+    <div class="stats-ranges" id="stRanges"></div>
+    <div class="stats-rangeval" id="stRangeVal"></div>
+    <div class="stats-block" id="stChartBlock"><div class="nd-h">Visitas por d&iacute;a</div><div class="stats-chart" id="stChart"></div><div class="stats-chart-x" id="stChartX"></div></div>
+    <div class="stats-block" id="stCountryBlock"><div class="nd-h">Por pa&iacute;s</div><div id="stCountries"></div></div>
+    <div class="stats-note" id="stNote"></div>
+    <div class="shm-foot">Sin cookies &middot; anal&iacute;tica an&oacute;nima propia</div>
+  </div>
+</div>
+<div id="cookieModal" class="shm" onclick="closeCookies(event)">
+  <div class="shm-card cookie-card">
+    <button class="shm-x" onclick="closeCookies()" aria-label="Cerrar">&times;</button>
+    <div class="shm-cat">&#127850; Privacidad</div>
+    <div class="ck-title">Cookies y privacidad</div>
+    <div class="ck-body">
+      <p><b>Nombretorio no usa cookies.</b> Ni de seguimiento, ni publicitarias, ni de terceros. No hay ning&uacute;n banner que aceptar.</p>
+      <p>Para funcionar solo guardamos un par de cosas en <b>tu propio navegador</b> (almacenamiento local, que no son cookies y no se env&iacute;an a ning&uacute;n servidor):</p>
+      <ul>
+        <li><b>Tus favoritos</b>, para que sigan ah&iacute; cuando vuelvas.</li>
+        <li>Una <b>marca de sesi&oacute;n</b> temporal, para contar tu visita una sola vez.</li>
+      </ul>
+      <p><b>Visitas.</b> Las contamos de forma <b>an&oacute;nima y agregada</b> en nuestro propio servidor. Guardamos &uacute;nicamente el <b>d&iacute;a</b> y el <b>pa&iacute;s aproximado</b> (que deduce la red de Vercel a partir de la IP). <b>No almacenamos tu IP</b> ni ning&uacute;n dato que te identifique.</p>
+      <p><b>Tipograf&iacute;as.</b> Cargamos tipograf&iacute;as de Google Fonts; su descarga no instala cookies. Los datos de nombres provienen de fuentes oficiales (INE, INSEE, Istat).</p>
+      <p>Proyecto personal de c&oacute;digo abierto &mdash; puedes revisar el c&oacute;digo en GitHub.</p>
+    </div>
+    <div class="shm-foot">nombretorio.vercel.app</div>
+  </div>
+</div>
 <script>
 
 const YEARS=Array.from({length:21},(_,i)=>2003+i);
@@ -1103,9 +1174,9 @@ function shmDeleg(id,sel,fn){ var el=document.getElementById(id); if(el) el.addE
 shmDeleg('specGrid','.sc',function(c){ openShare((c.querySelector('.sc-n')||{}).innerHTML,(c.querySelector('.sc-cat')||{}).innerHTML,(c.querySelector('.sc-d')||{}).innerHTML); });
 shmDeleg('gPanel','.grow',function(c){ var n=c.querySelector('.grow-n'); var nm=n&&n.childNodes[0]?n.childNodes[0].textContent:''; openShare(nm,(c.querySelector('.grow-c')||{}).innerHTML,(c.querySelector('.grow-d')||{}).innerHTML); });
 shmDeleg('mapPanel','.mp-row',function(c){ var nm=(c.querySelector('.mp-nm')||{}).textContent||''; var rt=(c.querySelector('.mp-rt')||{}).textContent||''; var prov=(document.querySelector('#mapPanel .mp-ph strong')||{}).textContent||''; openShare(nm,'&#128205; '+prov,'De los nombres más frecuentes en '+prov+(rt?' ('+rt+')':'')+'.'); });
-document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ ['shareModal','favModal'].forEach(function(id){var m=document.getElementById(id); if(m)m.style.display='none';}); } });
+document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ ['shareModal','favModal','statsModal','cookieModal'].forEach(function(id){var m=document.getElementById(id); if(m)m.style.display='none';}); } });
 
-(function(){var el=document.getElementById('visitCount');if(!el)return;var base='https://abacus.jasoncameron.dev',ns='nombretorio-ldvdp/visits';var isNew=!sessionStorage.getItem('nbt_v');fetch(base+(isNew?'/hit/':'/get/')+ns).then(function(r){return r.json();}).then(function(d){if(d&&typeof d.value==='number'){el.textContent=d.value.toLocaleString('es-ES');var w=document.getElementById('visitWrap');if(w)w.style.display='';if(isNew){try{sessionStorage.setItem('nbt_v','1');}catch(e){}}}}).catch(function(){});})();
+(function(){var el=document.getElementById('visitCount'),w=document.getElementById('visitWrap');if(!el)return;var isNew=!sessionStorage.getItem('nbt_v');function show(n){if(n!=null&&!isNaN(n)){el.textContent=Number(n).toLocaleString('es-ES');window.__visitTotal=Number(n);}if(w)w.style.display='';}function abacus(){fetch('https://abacus.jasoncameron.dev/'+(isNew?'hit':'get')+'/nombretorio-ldvdp/visits').then(function(r){return r.json();}).then(function(a){if(a&&typeof a.value==='number')show(a.value);}).catch(function(){});}fetch(isNew?'/api/visit':'/api/stats').then(function(r){return r.json();}).then(function(d){if(d&&d.configured&&typeof d.total==='number'){show(d.total);}else{abacus();}if(isNew){try{sessionStorage.setItem('nbt_v','1');}catch(e){}}}).catch(function(){abacus();if(isNew){try{sessionStorage.setItem('nbt_v','1');}catch(e){}}});})();
 
 (function(){var c=document.getElementById('heroEmbers');if(!c)return;
 if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
@@ -1188,6 +1259,63 @@ function closeFavs(ev){ if(ev&&ev.target!==ev.currentTarget&&!(ev.target.classLi
 function favCopy(){ var txt=favText(); try{navigator.clipboard.writeText(txt);}catch(e){} var b=window.event&&window.event.target; if(b&&b.tagName==='BUTTON'){var o=b.innerHTML;b.innerHTML='&#10003; Copiado';setTimeout(function(){b.innerHTML=o;},1400);} }
 function favDownload(){ try{var blob=new Blob([favText()],{type:'text/plain;charset=utf-8'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='mis-nombres-favoritos.txt';document.body.appendChild(a);a.click();a.remove();}catch(e){} }
 function favClear(){ if(favs.length&&confirm('¿Vaciar tu lista de favoritos?')){ clrFavs(); } }
+
+var STATS=null, stRange=7;
+var ST_RANGES=[[1,'1 día'],[7,'7 días'],[15,'15 días'],[30,'1 mes'],[90,'3 meses'],[365,'1 año'],[0,'Todo']];
+var _regionNames=null; try{_regionNames=new Intl.DisplayNames(['es'],{type:'region'});}catch(e){}
+function _flag(cc){cc=(cc||'').toUpperCase();if(cc.length!==2||cc==='XX')return '🏳️';try{return String.fromCodePoint.apply(null,cc.split('').map(function(c){return 127397+c.charCodeAt(0);}));}catch(e){return '';}}
+function _cname(cc){if(!cc||cc==='XX')return 'Sin geolocalizar';try{return (_regionNames&&_regionNames.of(cc))||cc;}catch(e){return cc;}}
+function _esDate(s){try{var p=(s+'').split('-');return p[2]+'/'+p[1]+'/'+p[0].slice(2);}catch(e){return s;}}
+function openStats(){document.getElementById('statsModal').style.display='flex';loadStats();}
+function closeStats(ev){if(ev&&ev.target!==ev.currentTarget&&!(ev.target.classList&&ev.target.classList.contains('shm-x')))return;var m=document.getElementById('statsModal');if(m)m.style.display='none';}
+function openCookies(){document.getElementById('cookieModal').style.display='flex';}
+function closeCookies(ev){if(ev&&ev.target!==ev.currentTarget&&!(ev.target.classList&&ev.target.classList.contains('shm-x')))return;var m=document.getElementById('cookieModal');if(m)m.style.display='none';}
+function loadStats(){var tt=document.getElementById('stTotal');if(tt)tt.textContent='…';fetch('/api/stats').then(function(r){return r.json();}).then(function(d){STATS=d;renderStats();}).catch(function(){STATS={configured:false};renderStats();});}
+function setStRange(n){stRange=n;renderStats();}
+function renderStats(){
+  var d=STATS||{};
+  var days=(d.days&&typeof d.days==='object')?d.days:{};
+  var dayKeys=Object.keys(days).sort();
+  var total=(typeof d.total==='number')?d.total:(window.__visitTotal||0);
+  document.getElementById('stTotal').textContent=Number(total||0).toLocaleString('es-ES');
+  document.getElementById('stRanges').innerHTML=ST_RANGES.map(function(r){return '<button class="st-rg'+(r[0]===stRange?' on':'')+'" onclick="setStRange('+r[0]+')">'+r[1]+'</button>';}).join('');
+  var hasData=dayKeys.length>0;
+  var since=document.getElementById('stSince');
+  since.innerHTML = hasData ? ('Del <b>'+_esDate(dayKeys[0])+'</b> al <b>'+_esDate(dayKeys[dayKeys.length-1])+'</b>') : '';
+  var rangeCount, label;
+  if(stRange===0){rangeCount=hasData?dayKeys.reduce(function(a,k){return a+days[k];},0):total;label='en total';}
+  else{
+    var lo=new Date(Date.now()-(stRange-1)*86400000).toISOString().slice(0,10);
+    rangeCount=dayKeys.filter(function(k){return k>=lo;}).reduce(function(a,k){return a+days[k];},0);
+    var lab=(ST_RANGES.filter(function(x){return x[0]===stRange;})[0]||[stRange,stRange+' días'])[1];
+    var m1=lab.match(/^1 (.+)$/);
+    label='en '+(m1?('el último '+m1[1]):('los últimos '+lab));
+  }
+  document.getElementById('stRangeVal').innerHTML='<strong>'+Number(rangeCount||0).toLocaleString('es-ES')+'</strong> '+(rangeCount===1?'visita':'visitas')+' '+label;
+  var cb=document.getElementById('stChartBlock');
+  if(hasData){
+    cb.style.display='';
+    var winKeys;
+    if(stRange===0){winKeys=dayKeys.slice();}
+    else{var lo2=new Date(Date.now()-(stRange-1)*86400000).toISOString().slice(0,10);winKeys=dayKeys.filter(function(k){return k>=lo2;});}
+    if(winKeys.length===0)winKeys=dayKeys.slice(-1);
+    var MAXB=60; if(winKeys.length>MAXB)winKeys=winKeys.slice(-MAXB);
+    var mx=Math.max.apply(null,winKeys.map(function(k){return days[k];}).concat([1]));
+    document.getElementById('stChart').innerHTML=winKeys.map(function(k){var h=Math.max(3,Math.round(days[k]/mx*100));return '<span class="st-bar" style="height:'+h+'%" title="'+_esDate(k)+': '+days[k]+'"></span>';}).join('');
+    document.getElementById('stChartX').innerHTML='<span>'+_esDate(winKeys[0])+'</span><span>'+_esDate(winKeys[winKeys.length-1])+'</span>';
+  } else { cb.style.display='none'; }
+  var countries=(d.countries&&typeof d.countries==='object')?d.countries:{};
+  var ckeys=Object.keys(countries).filter(function(k){return countries[k]>0;}).sort(function(a,b){return countries[b]-countries[a];});
+  var cob=document.getElementById('stCountryBlock');
+  if(ckeys.length){
+    cob.style.display='';
+    var cmax=countries[ckeys[0]]||1, totalC=ckeys.reduce(function(a,k){return a+countries[k];},0)||1;
+    document.getElementById('stCountries').innerHTML=ckeys.slice(0,12).map(function(k){var pct=Math.round(countries[k]/totalC*100);var wd=Math.max(4,Math.round(countries[k]/cmax*100));return '<div class="st-cty"><span class="st-flag">'+_flag(k)+'</span><span class="st-cname">'+_cname(k)+'</span><span class="st-cbar"><span style="width:'+wd+'%"></span></span><span class="st-ccount">'+Number(countries[k]).toLocaleString('es-ES')+' &middot; '+pct+'%</span></div>';}).join('');
+  } else { cob.style.display='none'; }
+  var note=document.getElementById('stNote');
+  if(!d.configured){note.style.display='';note.innerHTML=hasData?'':'La analítica detallada (por día y país) se activará en cuanto el almacén de datos esté configurado en Vercel. De momento se muestra el total de visitas.';}
+  else{note.style.display='none';note.innerHTML='';}
+}
 </script>
 </body>
 </html>
