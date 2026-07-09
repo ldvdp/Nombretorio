@@ -450,7 +450,7 @@ tr:hover td{background:#F7F4EF}
   </div>
   <div id="mapMundo" style="display:none">
   <div class="spec-lead"><div class="spec-lead-badge">&#127760;</div><div><strong>Nombres del mundo</strong><p>Gira el globo (arr&aacute;stralo con el rat&oacute;n) y elige una regi&oacute;n para ver sus nombres. El globo <strong>vuela</strong> hacia la zona que toques.</p></div></div>
-  <div class="map-controls"><div class="pills" id="gSexPills"><button class="pill on-n" onclick="gSetSex('n')">Ni&ntilde;os</button><button class="pill" onclick="gSetSex('f')">Ni&ntilde;as</button></div></div>
+  <div class="map-controls"><div class="pills" id="gSexPills"><button class="pill on-n" onclick="gSetSex('n')">Ni&ntilde;os</button><button class="pill" onclick="gSetSex('f')">Ni&ntilde;as</button></div><button class="pill" id="gDN" onclick="gToggleDN()">&#127769; Noche</button></div>
   <div class="globe-flex">
     <div class="globe-stage"><div id="globeViz"></div><div class="globe-hint">arrastra para girar &middot; rueda para zoom &middot; elige una regi&oacute;n</div></div>
     <div class="globe-hud">
@@ -738,8 +738,8 @@ function mpClear(){mpName='';document.getElementById('mapNameInput').value='';mp
 function mpClickProv(ine){mpCurProv=ine;var list=PROV_DATA[mpSex][ine]||[],disp=MAP_LAYOUT[ine][2];var rows=list.slice(0,15).map(function(p,i){return '<div class="mp-row"><span class="mp-rk">'+(i+1)+'</span><span class="mp-nm">'+mpTitle(p[0])+'</span><span class="mp-rt">'+(p[1]!=null?p[1]+'‰':'')+'</span></div>';}).join('');document.getElementById('mapPanel').innerHTML='<div class="mp-ph"><strong>'+disp+'</strong><span>'+(mpSex==='H'?'niños':'niñas')+' · nombres más frecuentes</span></div>'+(rows||'<p style="color:#9a8f7f;font-size:.85rem">Sin datos.</p>');document.querySelectorAll('#mapSvg .mp-tile').forEach(function(el){el.classList.toggle('sel',el.dataset.ine===ine);});}
 
 
-var GW=null,gSex='n',gSel=-1;
-var AME=[0.32,0.9,0.5],AFR=[1,0.62,0.22],ASI=[1,0.36,0.46],OCE=[0.36,0.8,1],EUR=[0.6,0.63,1],HIS=[1,0.82,0.35];
+var GW=null,gSex='n',gSel=-1,gDay=true;
+var AME=[0.32,0.9,0.5],AFR=[1,0.62,0.22],ASI=[1,0.36,0.46],OCE=[0.36,0.8,1],EUR=[0.6,0.63,1],HIS=[1,0.82,0.35],BIB=[0.72,0.86,1];
 var GREG=[
  {l:'Mexica',lat:19,lng:-99,g:'América',c:AME,s:'O',k:'america',cm:'Mexica|Texcoco|Pur'},
  {l:'Maya',lat:18,lng:-89,g:'América',c:AME,s:'O',k:'america',cm:'Maya'},
@@ -780,16 +780,31 @@ var GREG=[
  {l:'Grecia antigua',lat:39,lng:23,g:'Historia',c:HIS,s:'W',k:'grecia'},
  {l:'Roma antigua',lat:42,lng:12,g:'Historia',c:HIS,s:'W',k:'roma'},
  {l:'Egipto antiguo',lat:26,lng:30,g:'Historia',c:HIS,s:'W',k:'egipto'},
- {l:'Persia',lat:32,lng:53,g:'Historia',c:HIS,s:'W',k:'persia'}
+ {l:'Persia',lat:32,lng:53,g:'Historia',c:HIS,s:'W',k:'persia'},
+ {l:'Ilirios',lat:43,lng:19,g:'Historia',c:HIS,s:'H',k:'ilirio'},
+ {l:'Medievales',lat:43,lng:-2,g:'Historia',c:HIS,s:'H',k:'medieval'},
+ {l:'Oriente (Palmira)',lat:34,lng:38,g:'Historia',c:HIS,s:'W',k:'oriente'},
+ {l:'Patriarcas',lat:31,lng:44,g:'Bíblico',c:BIB,s:'B',k:'torah'},
+ {l:'Profetas',lat:33,lng:36,g:'Bíblico',c:BIB,s:'B',k:'profetas'},
+ {l:'Reyes de Israel',lat:31.7,lng:35.2,g:'Bíblico',c:BIB,s:'B',k:'reyes'},
+ {l:'Evangelios',lat:32.8,lng:35.5,g:'Bíblico',c:BIB,s:'B',k:'evangelios'},
+ {l:'Ángeles',lat:29,lng:34,g:'Bíblico',c:BIB,s:'B',k:'angeles'}
 ];
 var GARC=[
- [40,-3,18,-70,EUR],[12,-2,18,-70,AFR],[42,12,26,30,HIS],[32,53,39,23,HIS],
- [42,12,12,-2,HIS],[-13,-72,-17,-149,AME],[16,103,0,113,ASI],[-17,-149,-41,173,OCE],
- [-4,37,7,80,AFR],[42,-3,53,-2,HIS],[47,2,53,-2,EUR],[49,32,44,20,EUR],[19,-99,42,-100,AME]
+ {sy:34,sx:35,ey:37,ex:10,c:HIS,n:'Fenicios: Tiro → Cartago'},
+ {sy:40,sx:-3,ey:18,ex:-70,c:EUR,n:'Colonización española → Caribe'},
+ {sy:6,sx:-2,ey:18,ex:-70,c:AFR,n:'África occidental → América'},
+ {sy:32,sx:53,ey:16,ex:103,c:HIS,n:'Ruta de la seda (hacia el este)'},
+ {sy:39,sx:23,ey:42,ex:12,c:HIS,n:'De Grecia a Roma'},
+ {sy:42,sx:12,ey:40,ex:-3,c:HIS,n:'Roma → Hispania'},
+ {sy:61,sx:8,ey:50,ex:-58,c:EUR,n:'Vikingos → Norteamérica'},
+ {sy:-17,sx:-149,ey:-41,ex:173,c:OCE,n:'Polinesios → Nueva Zelanda'},
+ {sy:6,sx:12,ey:-28,ex:26,c:AFR,n:'Expansión bantú'},
+ {sy:0,sx:113,ey:-6,ex:158,c:OCE,n:'Austronesios por el Pacífico'}
 ];
 function gRgb(c){return 'rgb('+Math.round(c[0]*255)+','+Math.round(c[1]*255)+','+Math.round(c[2]*255)+')';}
 var GSRC={O:'ORIGEN_DATA',C:'COUNTRY_DATA',H:'HIST_DATA',W:'WORLD_DATA'};
-function gData(r){var m={O:ORIGEN_DATA,C:COUNTRY_DATA,H:HIST_DATA,W:WORLD_DATA};return m[r.s];}
+function gData(r){var m={O:ORIGEN_DATA,C:COUNTRY_DATA,H:HIST_DATA,W:WORLD_DATA,B:BIBLICAL_DATA};return m[r.s];}
 function gNames(r){var s=gData(r),g=gSex==='n'?'n':'f',re=r.cm?new RegExp(r.cm,'i'):null;
  var arr=s[g].filter(function(x){return x.k===r.k&&(!re||re.test(x.cat));});
  if(r.s==='O'&&s.u){arr=arr.concat(s.u.filter(function(x){return x.k===r.k&&(!re||re.test(x.cat));}));}
@@ -802,17 +817,18 @@ function gInit(){
   gLoadLib(function(){
     var Globe=window.Globe;
     GW=Globe()(el)
-      .globeImageUrl('/earth-night.jpg')
+      .globeImageUrl(gDay?'/earth-blue-marble.jpg':'/earth-night.jpg')
       .bumpImageUrl('/earth-topology.png')
-      .backgroundColor('rgba(0,0,0,0)')
+      .backgroundImageUrl('/night-sky.png')
       .showAtmosphere(true).atmosphereColor('#8a7bff').atmosphereAltitude(0.2)
       .pointsData(GREG).pointLat('lat').pointLng('lng').pointColor(function(d){return gRgb(d.c);})
         .pointAltitude(function(d){return GREG.indexOf(d)===gSel?0.14:0.045;}).pointRadius(0.55).pointsMerge(false)
         .pointLabel(function(d){return '<div style="font:600 12px sans-serif;color:#fff;background:rgba(18,14,36,.9);padding:3px 8px;border-radius:8px;border:1px solid '+gRgb(d.c)+'">'+d.l+'</div>';})
         .onPointClick(function(d){gSelect(GREG.indexOf(d));})
-      .arcsData(GARC).arcStartLat(function(d){return d[0];}).arcStartLng(function(d){return d[1];}).arcEndLat(function(d){return d[2];}).arcEndLng(function(d){return d[3];})
-        .arcColor(function(d){var c=gRgb(d[4]);return [c.replace('rgb','rgba').replace(')',',0)'),c.replace('rgb','rgba').replace(')',',0.85)')];})
-        .arcStroke(0.5).arcAltitudeAutoScale(0.4).arcDashLength(0.5).arcDashGap(1).arcDashInitialGap(function(){return Math.random();}).arcDashAnimateTime(2600)
+      .arcsData(GARC).arcStartLat(function(d){return d.sy;}).arcStartLng(function(d){return d.sx;}).arcEndLat(function(d){return d.ey;}).arcEndLng(function(d){return d.ex;})
+        .arcColor(function(d){var c=gRgb(d.c);return [c.replace('rgb','rgba').replace(')',',0)'),c.replace('rgb','rgba').replace(')',',0.9)')];})
+        .arcLabel(function(d){return '<div style="font:600 12px sans-serif;color:#fff;background:rgba(18,14,36,.92);padding:3px 9px;border-radius:8px">'+d.n+'</div>';})
+        .arcStroke(0.55).arcAltitudeAutoScale(0.45).arcDashLength(0.5).arcDashGap(1).arcDashInitialGap(function(){return Math.random();}).arcDashAnimateTime(2600)
       .ringsData(GREG).ringLat('lat').ringLng('lng').ringMaxRadius(2.2).ringPropagationSpeed(1.2).ringRepeatPeriod(1700)
         .ringColor(function(d){var c=gRgb(d.c).slice(4,-1);return function(t){return 'rgba('+c+','+(1-t)+')';};});
     function gResize(){var w=Math.max(260,Math.min(490,el.clientWidth||420));GW.width(w).height(w);}
@@ -844,6 +860,7 @@ function gShowNames(r){
   document.getElementById('gPanel').innerHTML='<div class="gph"><strong>'+r.l+'</strong><span>'+r.g+' &middot; '+(gSex==='n'?'niños':'niñas')+' &middot; '+arr.length+' nombres</span></div>'+(rows||'<p class="gph-empty">Sin nombres para esta vista.</p>');
 }
 function gSetSex(s){gSex=s;document.querySelectorAll('#gSexPills .pill').forEach(function(b,i){b.className='pill'+(i===0&&s==='n'?' on-n':i===1&&s==='f'?' on-f':'');});if(gSel>=0)gShowNames(GREG[gSel]);}
+function gToggleDN(){gDay=!gDay;if(GW)GW.globeImageUrl(gDay?'/earth-blue-marble.jpg':'/earth-night.jpg');var b=document.getElementById('gDN');if(b)b.innerHTML=gDay?'🌙 Noche':'☀️ Día';}
 function mapMode(m){
   document.getElementById('mapEspana').style.display=(m==='esp')?'':'none';
   document.getElementById('mapMundo').style.display=(m==='mun')?'':'none';
