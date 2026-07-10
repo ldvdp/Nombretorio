@@ -1174,9 +1174,9 @@ function shmDeleg(id,sel,fn){ var el=document.getElementById(id); if(el) el.addE
 shmDeleg('specGrid','.sc',function(c){ openShare((c.querySelector('.sc-n')||{}).innerHTML,(c.querySelector('.sc-cat')||{}).innerHTML,(c.querySelector('.sc-d')||{}).innerHTML); });
 shmDeleg('gPanel','.grow',function(c){ var n=c.querySelector('.grow-n'); var nm=n&&n.childNodes[0]?n.childNodes[0].textContent:''; openShare(nm,(c.querySelector('.grow-c')||{}).innerHTML,(c.querySelector('.grow-d')||{}).innerHTML); });
 shmDeleg('mapPanel','.mp-row',function(c){ var nm=(c.querySelector('.mp-nm')||{}).textContent||''; var rt=(c.querySelector('.mp-rt')||{}).textContent||''; var prov=(document.querySelector('#mapPanel .mp-ph strong')||{}).textContent||''; openShare(nm,'&#128205; '+prov,'De los nombres más frecuentes en '+prov+(rt?' ('+rt+')':'')+'.'); });
-document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ ['shareModal','favModal','statsModal','cookieModal'].forEach(function(id){var m=document.getElementById(id); if(m)m.style.display='none';}); } });
+document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ ['shareModal','favModal','statsModal','cookieModal'].forEach(function(id){var m=document.getElementById(id); if(m)m.style.display='none';}); try{_clearHash('stats');_clearHash('cookies');}catch(e2){} } });
 
-(function(){var el=document.getElementById('visitCount'),w=document.getElementById('visitWrap');if(!el)return;var isNew=!sessionStorage.getItem('nbt_v');function show(n){if(n!=null&&!isNaN(n)){el.textContent=Number(n).toLocaleString('es-ES');window.__visitTotal=Number(n);}if(w)w.style.display='';}function abacus(){fetch('https://abacus.jasoncameron.dev/'+(isNew?'hit':'get')+'/nombretorio-ldvdp/visits').then(function(r){return r.json();}).then(function(a){if(a&&typeof a.value==='number')show(a.value);}).catch(function(){});}fetch(isNew?'/api/visit':'/api/stats').then(function(r){return r.json();}).then(function(d){if(d&&d.configured&&typeof d.total==='number'){show(d.total);}else{abacus();}if(isNew){try{sessionStorage.setItem('nbt_v','1');}catch(e){}}}).catch(function(){abacus();if(isNew){try{sessionStorage.setItem('nbt_v','1');}catch(e){}}});})();
+(function(){var el=document.getElementById('visitCount'),w=document.getElementById('visitWrap');if(!el)return;var isNew=!sessionStorage.getItem('nbt_v');function show(n){if(n!=null&&!isNaN(n)){el.textContent=Number(n).toLocaleString('es-ES');window.__visitTotal=Number(n);}if(w)w.style.display='';try{var sm=document.getElementById('statsModal');if(sm&&sm.style.display==='flex'&&typeof renderStats==='function')renderStats();}catch(e){}}function abacus(){fetch('https://abacus.jasoncameron.dev/'+(isNew?'hit':'get')+'/nombretorio-ldvdp/visits').then(function(r){return r.json();}).then(function(a){if(a&&typeof a.value==='number')show(a.value);}).catch(function(){});}fetch(isNew?'/api/visit':'/api/stats').then(function(r){return r.json();}).then(function(d){if(d&&d.configured&&typeof d.total==='number'){show(d.total);}else{abacus();}if(isNew){try{sessionStorage.setItem('nbt_v','1');}catch(e){}}}).catch(function(){abacus();if(isNew){try{sessionStorage.setItem('nbt_v','1');}catch(e){}}});})();
 
 (function(){var c=document.getElementById('heroEmbers');if(!c)return;
 if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
@@ -1266,10 +1266,20 @@ var _regionNames=null; try{_regionNames=new Intl.DisplayNames(['es'],{type:'regi
 function _flag(cc){cc=(cc||'').toUpperCase();if(cc.length!==2||cc==='XX')return '🏳️';try{return String.fromCodePoint.apply(null,cc.split('').map(function(c){return 127397+c.charCodeAt(0);}));}catch(e){return '';}}
 function _cname(cc){if(!cc||cc==='XX')return 'Sin geolocalizar';try{return (_regionNames&&_regionNames.of(cc))||cc;}catch(e){return cc;}}
 function _esDate(s){try{var p=(s+'').split('-');return p[2]+'/'+p[1]+'/'+p[0].slice(2);}catch(e){return s;}}
-function openStats(){document.getElementById('statsModal').style.display='flex';loadStats();}
-function closeStats(ev){if(ev&&ev.target!==ev.currentTarget&&!(ev.target.classList&&ev.target.classList.contains('shm-x')))return;var m=document.getElementById('statsModal');if(m)m.style.display='none';}
-function openCookies(){document.getElementById('cookieModal').style.display='flex';}
-function closeCookies(ev){if(ev&&ev.target!==ev.currentTarget&&!(ev.target.classList&&ev.target.classList.contains('shm-x')))return;var m=document.getElementById('cookieModal');if(m)m.style.display='none';}
+function _setHash(h){try{if(location.hash!=='#'+h){if(history.pushState)history.pushState(null,'','#'+h);else location.hash=h;}}catch(e){}}
+function _clearHash(h){try{if(location.hash==='#'+h){if(history.pushState)history.pushState(null,'',location.pathname+location.search);else location.hash='';}}catch(e){}}
+function _hideDeepModals(){['statsModal','cookieModal'].forEach(function(id){var m=document.getElementById(id);if(m)m.style.display='none';});}
+function openStats(){document.getElementById('statsModal').style.display='flex';loadStats();_setHash('stats');}
+function closeStats(ev){if(ev&&ev.target!==ev.currentTarget&&!(ev.target.classList&&ev.target.classList.contains('shm-x')))return;var m=document.getElementById('statsModal');if(m)m.style.display='none';_clearHash('stats');}
+function openCookies(){document.getElementById('cookieModal').style.display='flex';_setHash('cookies');}
+function closeCookies(ev){if(ev&&ev.target!==ev.currentTarget&&!(ev.target.classList&&ev.target.classList.contains('shm-x')))return;var m=document.getElementById('cookieModal');if(m)m.style.display='none';_clearHash('cookies');}
+function _applyHash(){var h=(location.hash||'').slice(1).toLowerCase();
+  if(h==='stats'||h==='visitas'){document.getElementById('statsModal').style.display='flex';loadStats();}
+  else if(h==='cookies'||h==='privacidad'){document.getElementById('cookieModal').style.display='flex';}
+  else{_hideDeepModals();}}
+(function(){var b=document.body;['shareModal','favModal','statsModal','cookieModal'].forEach(function(id){var m=document.getElementById(id);if(m&&m.parentElement!==b)b.appendChild(m);});})();
+window.addEventListener('hashchange',_applyHash);
+try{_applyHash();}catch(e){}
 function loadStats(){var tt=document.getElementById('stTotal');if(tt)tt.textContent='…';fetch('/api/stats').then(function(r){return r.json();}).then(function(d){STATS=d;renderStats();}).catch(function(){STATS={configured:false};renderStats();});}
 function setStRange(n){stRange=n;renderStats();}
 function renderStats(){
