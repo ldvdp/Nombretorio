@@ -35,17 +35,6 @@ function hashToObj(h) {
 
 export default async function handler(req, res) {
   res.setHeader("cache-control", "no-store, max-age=0");
-
-  // Diagnóstico temporal: ?debug=1 -> solo NOMBRES de variables, nunca valores.
-  if (req.query && req.query.debug === "1") {
-    const names = ["KV_REST_API_URL", "KV_REST_API_TOKEN", "UPSTASH_REDIS_REST_URL", "UPSTASH_REDIS_REST_TOKEN"];
-    const present = {};
-    names.forEach((n) => { present[n] = !!process.env[n]; });
-    const matching = Object.keys(process.env).filter((k) => /KV_|UPSTASH|REDIS/i.test(k)).sort();
-    res.status(200).json({ present, matching });
-    return;
-  }
-
   try {
     const p = await pipeline([
       ["GET", TOTAL],
