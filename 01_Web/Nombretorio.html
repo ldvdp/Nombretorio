@@ -1219,7 +1219,7 @@ shmDeleg('gPanel','.grow',function(c){ var n=c.querySelector('.grow-n'); var nm=
 shmDeleg('mapPanel','.mp-row',function(c){ var nm=(c.querySelector('.mp-nm')||{}).textContent||''; var rt=(c.querySelector('.mp-rt')||{}).textContent||''; var prov=(document.querySelector('#mapPanel .mp-ph strong')||{}).textContent||''; openShare(nm,'&#128205; '+prov,'De los nombres más frecuentes en '+prov+(rt?' ('+rt+')':'')+'.'); });
 document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ ['shareModal','favModal','statsModal','cookieModal'].forEach(function(id){var m=document.getElementById(id); if(m)m.style.display='none';}); try{_clearHash('stats');_clearHash('cookies');}catch(e2){} } });
 
-(function(){var el=document.getElementById('visitCount'),w=document.getElementById('visitWrap');if(!el)return;var isNew=!sessionStorage.getItem('nbt_v');function show(n){if(n!=null&&!isNaN(n)){el.textContent=Number(n).toLocaleString('es-ES');window.__visitTotal=Number(n);}if(w)w.style.display='';try{var sm=document.getElementById('statsModal');if(sm&&sm.style.display==='flex'&&typeof renderStats==='function')renderStats();}catch(e){}}function abacus(){fetch('https://abacus.jasoncameron.dev/'+(isNew?'hit':'get')+'/nombretorio-ldvdp/visits').then(function(r){return r.json();}).then(function(a){if(a&&typeof a.value==='number')show(a.value);}).catch(function(){});}fetch(isNew?'/api/visit':'/api/stats').then(function(r){return r.json();}).then(function(d){if(d&&d.configured&&typeof d.total==='number'){show(d.total);}else{abacus();}if(isNew){try{sessionStorage.setItem('nbt_v','1');}catch(e){}}}).catch(function(){abacus();if(isNew){try{sessionStorage.setItem('nbt_v','1');}catch(e){}}});})();
+(function(){var el=document.getElementById('visitCount'),w=document.getElementById('visitWrap');if(!el)return;var isNew=!sessionStorage.getItem('nbt_v');fetch(isNew?'/api/visit':'/api/stats').then(function(r){return r.json();}).then(function(d){if(d&&d.configured&&typeof d.total==='number'){el.textContent=Number(d.total).toLocaleString('es-ES');window.__visitTotal=Number(d.total);if(w)w.style.display='';try{var sm=document.getElementById('statsModal');if(sm&&sm.style.display==='flex'&&typeof renderStats==='function')renderStats();}catch(e){}}else if(w){w.style.display='none';}if(isNew){try{sessionStorage.setItem('nbt_v','1');}catch(e){}}}).catch(function(){if(w)w.style.display='none';});})();
 
 (function(){var c=document.getElementById('heroEmbers');if(!c)return;
 if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
@@ -1393,6 +1393,59 @@ function renderStats(){
   if(!d.configured){note.style.display='';note.innerHTML=hasData?'':'La analítica detallada (por día y país) se activará en cuanto el almacén de datos esté configurado en Vercel. De momento se muestra el total de visitas.';}
   else{note.style.display='none';note.innerHTML='';}
 }
+
+/* Accesibilidad de los modales: role=dialog, foco atrapado y devuelto, y bloqueo
+   del scroll de fondo. Se observa el atributo style porque el display se cambia
+   desde muchos sitios: funciones open/close, Escape y el router de hash. */
+(function(){
+  var MODALS={shareModal:null,favModal:'Mis nombres favoritos',statsModal:'Estadísticas de visitas',cookieModal:'Cookies y privacidad'};
+  var openId=null, lastTrigger=null, prevOverflow='';
+  function focusables(m){
+    return [].slice.call(m.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled])'))
+      .filter(function(x){return x.offsetWidth>0||x.offsetHeight>0;});
+  }
+  function onOpen(id){
+    openId=id;
+    var m=document.getElementById(id); if(!m)return;
+    var ae=document.activeElement;
+    if(ae&&ae!==document.body&&!m.contains(ae))lastTrigger=ae;
+    prevOverflow=document.body.style.overflow; document.body.style.overflow='hidden';
+    var card=m.querySelector('.shm-card');
+    if(card){card.setAttribute('tabindex','-1'); try{card.focus({preventScroll:true});}catch(e){card.focus();}}
+  }
+  function onClose(){
+    openId=null;
+    document.body.style.overflow=prevOverflow;
+    if(lastTrigger&&lastTrigger.focus&&document.contains(lastTrigger)){try{lastTrigger.focus({preventScroll:true});}catch(e){}}
+    lastTrigger=null;
+  }
+  Object.keys(MODALS).forEach(function(id){
+    var m=document.getElementById(id); if(!m)return;
+    m.setAttribute('role','dialog'); m.setAttribute('aria-modal','true');
+    if(MODALS[id])m.setAttribute('aria-label',MODALS[id]);
+    else m.setAttribute('aria-labelledby','shmName'); // la ficha se anuncia con el nombre
+    new MutationObserver(function(){
+      var vis=(m.style.display==='flex');
+      if(vis&&openId!==id)onOpen(id);
+      else if(!vis&&openId===id)onClose();
+    }).observe(m,{attributes:true,attributeFilter:['style']});
+  });
+  // el foco no debe escaparse del modal abierto
+  document.addEventListener('keydown',function(e){
+    if(e.key!=='Tab'||!openId)return;
+    var m=document.getElementById(openId); if(!m)return;
+    var f=focusables(m); if(!f.length)return;
+    var first=f[0], last=f[f.length-1], ae=document.activeElement;
+    if(!m.contains(ae)){e.preventDefault();first.focus();return;}
+    if(e.shiftKey&&(ae===first||ae===m.querySelector('.shm-card'))){e.preventDefault();last.focus();}
+    else if(!e.shiftKey&&ae===last){e.preventDefault();first.focus();}
+  });
+  // si un enlace directo (#nombre/... , #stats) ya abrio un modal antes de registrar el observador
+  Object.keys(MODALS).forEach(function(id){
+    var m=document.getElementById(id);
+    if(m&&m.style.display==='flex'&&!openId)onOpen(id);
+  });
+})();
 </script>
 </body>
 </html>
