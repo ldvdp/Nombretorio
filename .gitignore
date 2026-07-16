@@ -20,3 +20,6 @@ Planetas del Mundo/
 
 # GeoJSON fuente (las rutas ya van embebidas en el HTML)
 *.geojson
+
+# dependencias (solo para @vercel/og)
+node_modules/

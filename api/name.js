@@ -94,19 +94,29 @@ function metaFor(entry, slug) {
   } else {
     desc = `${name}: significado, origen y datos del nombre. Evolución en España desde 2003 y equivalentes en otros idiomas.`;
   }
-  return { title, desc, url: `${SITE}/nombre/${slug}` };
+  // La imagen se genera al vuelo (api/og.js) con estos mismos datos: no carga nada, solo dibuja.
+  const q = new URLSearchParams({ n: name });
+  if (entry && entry.rank != null) q.set("r", String(entry.rank));
+  if (entry && entry.total != null) q.set("p", String(entry.total));
+  if (entry && entry.gender) q.set("g", entry.gender);
+  return { title, desc, url: `${SITE}/nombre/${slug}`, img: `${SITE}/api/og?${q.toString()}` };
 }
 
-function patch(html, { title, desc, url }, name, noindex) {
-  const t = esc(title), d = esc(desc), u = esc(url);
+function patch(html, { title, desc, url, img }, name, noindex) {
+  const t = esc(title), d = esc(desc), u = esc(url), im = esc(img);
   let out = html
     .replace(/<title>[\s\S]*?<\/title>/, `<title>${t}</title>`)
     .replace(/<meta name="description" content="[^"]*">/, `<meta name="description" content="${d}">`)
     .replace(/<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${t}">`)
     .replace(/<meta property="og:description" content="[^"]*">/, `<meta property="og:description" content="${d}">`)
     .replace(/<meta property="og:url" content="[^"]*">/, `<meta property="og:url" content="${u}">`)
+    .replace(/<meta property="og:image" content="[^"]*">/, `<meta property="og:image" content="${im}">`)
+    .replace(/<meta property="og:image:secure_url" content="[^"]*">/, `<meta property="og:image:secure_url" content="${im}">`)
+    .replace(/<meta property="og:image:type" content="[^"]*">/, `<meta property="og:image:type" content="image/png">`)
+    .replace(/<meta property="og:image:alt" content="[^"]*">/, `<meta property="og:image:alt" content="${esc(name)} &middot; Nombretorio">`)
     .replace(/<meta name="twitter:title" content="[^"]*">/, `<meta name="twitter:title" content="${t}">`)
     .replace(/<meta name="twitter:description" content="[^"]*">/, `<meta name="twitter:description" content="${d}">`)
+    .replace(/<meta name="twitter:image" content="[^"]*">/, `<meta name="twitter:image" content="${im}">`)
     .replace(/<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${u}">`);
   const inject =
     (noindex ? '<meta name="robots" content="noindex">' : "") +

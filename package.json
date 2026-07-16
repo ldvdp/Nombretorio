@@ -1,0 +1,9 @@
+{
+  "name": "nombretorio",
+  "private": true,
+  "type": "module",
+  "description": "Explorador de nombres. La web es index.html (estatico); package.json existe solo para @vercel/og, que genera la imagen de vista previa de cada nombre. No hay build.",
+  "dependencies": {
+    "@vercel/og": "^0.6.5"
+  }
+}
