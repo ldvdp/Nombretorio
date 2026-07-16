@@ -438,6 +438,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.t
 .ck-body ul{margin:0 0 10px 0;padding-left:20px}
 .ck-body li{margin-bottom:5px}
 .ck-body b{color:#2a2118}
+.nd-cap{font-size:.68rem;color:#9a8f7c;text-align:center;margin-top:5px}
 </style>
 </head>
 <body class="home">
@@ -1191,13 +1192,13 @@ function openShare(name,cat,desc){
   // Al abrir por enlace directo no llega descripcion: la construimos con los datos del nombre.
   if(!dd){try{var _d=nameDetail(nm),_b=[];
     if(_d.rank!=null)_b.push('nº '+_d.rank+' en España');
-    if(_d.total!=null)_b.push(fmt(_d.total)+' nacimientos');
+    if(_d.people!=null)_b.push(fmt(_d.people)+' personas en Espa\u00f1a');
     if(!_b.length&&_d.cards.length)_b.push(shmDecode(_d.cards[0].d));
     dd=_b.join(' · ');}catch(e){}}
   document.getElementById('shmName').textContent=nm;
   document.getElementById('shmCat').innerHTML=cat||'';
   document.getElementById('shmDesc').textContent=dd;
-  var url='https://nombretorio.vercel.app/#nombre/'+encodeURIComponent(nm);
+  var url='https://nombretorio.vercel.app/nombre/'+_nameSlug(nm);
   var txt='✨ '+nm+(dd?' — '+dd:'')+'\n\nDescubre más nombres en '+url;
   window._shmTxt=txt; window._shmName=nm;
   var e=encodeURIComponent(txt);
@@ -1207,10 +1208,10 @@ function openShare(name,cat,desc){
   document.getElementById('shmNative').style.display=navigator.share?'block':'none';
   try{renderNameDetail(nm);}catch(e){document.getElementById('shmDetail').innerHTML='';}
   document.getElementById('shareModal').style.display='flex';
-  try{_setHash('nombre/'+encodeURIComponent(nm));}catch(e){}
+  try{_setNamePath(nm);}catch(e){}
 }
 function _clearNameHash(){try{if((location.hash||'').slice(1).toLowerCase().indexOf('nombre/')===0){if(history.pushState)history.pushState(null,'',location.pathname+location.search);else location.hash='';}}catch(e){}}
-function closeShare(ev){ if(!ev || ev.target.id==='shareModal' || (''+ (ev.target.className||'')).indexOf('shm-x')>=0){ document.getElementById('shareModal').style.display='none'; _clearNameHash(); } }
+function closeShare(ev){ if(!ev || ev.target.id==='shareModal' || (''+ (ev.target.className||'')).indexOf('shm-x')>=0){ document.getElementById('shareModal').style.display='none'; _clearNameHash(); _clearNamePath(); } }
 function shmNativeShare(){ if(navigator.share){ navigator.share({title:'Nombretorio · '+window._shmName,text:window._shmTxt,url:'https://nombretorio.vercel.app/'}).catch(function(){}); } }
 function shmCopyLink(){ var b=document.getElementById('shmCopy'); var done=function(){b.innerHTML='&#10003; Copiado';setTimeout(function(){b.innerHTML='&#128203; Copiar';},1600);}; if(navigator.clipboard){navigator.clipboard.writeText(window._shmTxt||'').then(done).catch(function(){});} }
 function shmDeleg(id,sel,fn){ var el=document.getElementById(id); if(el) el.addEventListener('click',function(e){ var c=e.target.closest(sel); if(c) fn(c); }); }
@@ -1235,15 +1236,21 @@ function goHome(){document.body.classList.add('home');window.scrollTo(0,0);}
 
 function _dkey(s){return shmDecode(s+'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'');}
 var UNISEX_MIN=0.15; // la minoria debe pesar al menos esto para considerar el nombre unisex
+/* OJO: los dos bloques miden cosas distintas y no son comparables entre si.
+   M5K/W5K -> PERSONAS vivas con ese nombre (INE, todas las edades). Es la metrica
+              del ranking: Antonio 590.938, y las listas suman ~21M por sexo.
+   BB/BG.t -> NACIMIENTOS 2003-2023 (identico a la suma de .y, el grafico).
+   Juan: 298.933 personas pero 33.731 nacimientos desde 2003. */
 function nameDetail(nm){
   var key=_dkey(nm);
-  var d={gender:'',rank:null,total:null,years:null,peak:null,trans:null,cards:[],shareF:null};
+  var d={gender:'',rank:null,people:null,births:null,years:null,peak:null,trans:null,cards:[],shareF:null};
   var inM=false,inF=false;
   var b=BB.find(function(x){return _dkey(x.n)===key;});
   var gg=BG.find(function(x){return _dkey(x.n)===key;});
   var m=M5K.find(function(x){return _dkey(x[0])===key;});
   var w=W5K.find(function(x){return _dkey(x[0])===key;});
-  var tM=b?b.t:(m?m[2]:null), tF=gg?gg.t:(w?w[2]:null);
+  var pM=m?m[2]:null, pF=w?w[2]:null;   // personas
+  var bM=b?b.t:null,  bF=gg?gg.t:null;  // nacimientos 2003-2023
   if(b||m)inM=true; if(gg||w)inF=true;
   var tk=Object.keys(MULTI_DATA).find(function(k){return _dkey(k)===key;}); if(tk)d.trans=MULTI_DATA[tk];
   [HIST_DATA,COUNTRY_DATA,WORLD_DATA,ORIGEN_DATA,BIBLICAL_DATA].forEach(function(B){
@@ -1251,23 +1258,17 @@ function nameDetail(nm){
       if(_dkey(it.n)===key){d.cards.push({cat:it.cat,d:it.d}); if(gk==='n')inM=true; else inF=true;}
     });});
   });
-  // Genero por magnitud: aparecer en ambas listas no basta (p.ej. 187 mujeres 'Juan' frente a 33.731 hombres).
+  // Genero por magnitud, comparando SIEMPRE la misma metrica (nunca personas contra nacimientos)
+  var usePop=(pM!=null||pF!=null);
+  var cM=usePop?(pM||0):(bM||0), cF=usePop?(pF||0):(bF||0);
   var g='';
-  if(tM!=null&&tF!=null&&(tM+tF)>0){
-    d.shareF=tF/(tM+tF);
-    g=(Math.min(tM,tF)/(tM+tF)>=UNISEX_MIN)?'u':(tM>=tF?'n':'f');
-  }
-  else if(tM!=null&&tM>0)g='n';
-  else if(tF!=null&&tF>0)g='f';
-  else if(inM&&inF)g='u';
-  else if(inM)g='n';
-  else if(inF)g='f';
+  if(cM+cF>0){ d.shareF=cF/(cM+cF); g=(Math.min(cM,cF)/(cM+cF)>=UNISEX_MIN)?'u':(cM>=cF?'n':'f'); }
+  else if(inM&&inF)g='u'; else if(inM)g='n'; else if(inF)g='f';
   d.gender=g;
-  // Cifras (ranking/total/evolucion) del genero dominante
-  var domM=(g==='f')?false:(g==='u'?((tM||0)>=(tF||0)):(g==='n'?true:inM));
-  if(domM){ if(b){d.years=b.y;d.peak=b.pk;} if(m)d.rank=m[1]; d.total=tM; }
-  else { if(gg){d.years=gg.y;d.peak=gg.pk;} if(w)d.rank=w[1]; d.total=tF; }
-  if(d.total==null)d.total=(tM!=null?tM:tF);
+  // Cifras del genero dominante
+  var domM=(g==='f')?false:(g==='u'?(cM>=cF):(g==='n'?true:inM));
+  if(domM){ if(b){d.years=b.y;d.peak=b.pk;} if(m)d.rank=m[1]; d.people=pM; d.births=bM; }
+  else { if(gg){d.years=gg.y;d.peak=gg.pk;} if(w)d.rank=w[1]; d.people=pF; d.births=bF; }
   return d;
 }
 function ndChart(y){
@@ -1282,9 +1283,10 @@ function renderNameDetail(nm){
   if(d.gender){var gi=d.gender==='n'?'&#9794;':d.gender==='f'?'&#9792;':'&#9895;',gl=d.gender==='n'?'Ni&ntilde;o':d.gender==='f'?'Ni&ntilde;a':'Unisex';
     st.push('<div class="nd-stat"><span class="nd-k">'+gi+'</span><span class="nd-l">'+gl+'</span></div>');}
   if(d.rank!=null) st.push('<div class="nd-stat"><span class="nd-k">#'+d.rank+'</span><span class="nd-l">ranking Espa&ntilde;a</span></div>');
-  if(d.total!=null) st.push('<div class="nd-stat"><span class="nd-k">'+fmt(d.total)+'</span><span class="nd-l">nacimientos</span></div>');
+  if(d.people!=null) st.push('<div class="nd-stat"><span class="nd-k">'+fmt(d.people)+'</span><span class="nd-l">personas en Espa&ntilde;a</span></div>');
   if(st.length) h+='<div class="nd-stats">'+st.join('')+'</div>';
-  if(d.years) h+='<div class="nd-sec"><div class="nd-h">Evoluci&oacute;n 2003&ndash;2023</div>'+ndChart(d.years)+'</div>';
+  if(d.years) h+='<div class="nd-sec"><div class="nd-h">Evoluci&oacute;n 2003&ndash;2023</div>'+ndChart(d.years)+
+    (d.births!=null?'<div class="nd-cap">'+fmt(d.births)+' nacimientos entre 2003 y 2023</div>':'')+'</div>';
   if(d.cards.length){var seen={},cc=d.cards.filter(function(c){if(seen[c.d])return false;seen[c.d]=1;return true;}).slice(0,3);
     h+='<div class="nd-sec"><div class="nd-h">Significado y origen</div>'+cc.map(function(c){return '<div class="nd-mean"><span class="nd-cat">'+c.cat+'</span> '+c.d+'</div>';}).join('')+'</div>';}
   if(d.trans){var ks=Object.keys(d.trans).slice(0,8);
@@ -1303,7 +1305,7 @@ function renderFavPanel(){
   list.innerHTML=favs.map(function(f){
     var d; try{d=nameDetail(f.n);}catch(e){d={};}
     var g=d.gender||f.g, gi=g==='n'?'gn':g==='f'?'gf':'gu';
-    var mini=[]; if(d.rank!=null)mini.push('#'+d.rank); if(d.total!=null)mini.push(fmt(d.total));
+    var mini=[]; if(d.rank!=null)mini.push('#'+d.rank); if(d.people!=null)mini.push(fmt(d.people));
     var esc=(f.n+'').replace(/'/g,"\\'");
     return '<div class="fav-item"><span class="gd2 '+gi+'"></span>'+
       '<button class="fav-name" onclick="closeFavs();openShare(\''+esc+'\')">'+disp(f.n)+'</button>'+
@@ -1345,8 +1347,43 @@ function _applyHash(){var raw=(location.hash||'').slice(1), h=raw.toLowerCase();
 function _shmOpenFor(nm){var s=document.getElementById('shareModal');
   return !!(s&&s.style.display==='flex'&&window._shmName&&_dkey(window._shmName)===_dkey(nm));}
 (function(){var b=document.body;['shareModal','favModal','statsModal','cookieModal'].forEach(function(id){var m=document.getElementById(id);if(m&&m.parentElement!==b)b.appendChild(m);});})();
+
+/* Rutas por nombre: /nombre/<slug>. El servidor (api/name.js) sirve esa ruta con
+   sus propias meta tags y deja el nombre en window.__NAME__. Aqui solo hay que
+   mantener la URL en sync y resolver el slug cuando el historial no trae estado. */
+function _nameSlug(n){return _tkey(n).replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');}
+function _setNamePath(nm){try{var u='/nombre/'+_nameSlug(nm);
+  if(location.pathname!==u&&history.pushState)history.pushState({name:nm},'',u);}catch(e){}}
+function _clearNamePath(){try{if(/^\/nombre\//.test(location.pathname||'')&&history.pushState)history.pushState({},'','/');}catch(e){}}
+function _slugToName(s){
+  s=_nameSlug(decodeURIComponent(s||''));
+  var i,k,arr;
+  for(i=0;i<M5K.length;i++)if(_nameSlug(M5K[i][0])===s)return M5K[i][0];
+  for(i=0;i<W5K.length;i++)if(_nameSlug(W5K[i][0])===s)return W5K[i][0];
+  var B=[HIST_DATA,COUNTRY_DATA,WORLD_DATA,ORIGEN_DATA,BIBLICAL_DATA];
+  for(i=0;i<B.length;i++)for(k=0;k<2;k++){arr=B[i][k?'f':'n']||[];
+    for(var j=0;j<arr.length;j++){var nm=shmDecode(arr[j].n); if(_nameSlug(nm)===s)return nm;}}
+  return null;
+}
+function _route(){
+  var m=(location.pathname||'').match(/^\/nombre\/(.+?)\/?$/);
+  if(m){var nm=_slugToName(m[1]); if(nm&&!_shmOpenFor(nm))openShare(nm); return;}
+  var s=document.getElementById('shareModal'); if(s)s.style.display='none';
+  _applyHash();
+}
+window.addEventListener('popstate',function(e){
+  var m=(location.pathname||'').match(/^\/nombre\/(.+?)\/?$/);
+  if(m){var nm=(e.state&&e.state.name)||_slugToName(m[1]); if(nm&&!_shmOpenFor(nm))openShare(nm); return;}
+  var s=document.getElementById('shareModal'); if(s)s.style.display='none';
+  _applyHash();
+});
+/* arranque: el servidor ya nos dice el nombre; si no, ruta y luego hash (#nombre/ antiguo) */
+function _bootRoute(){
+  if(window.__NAME__){openShare(window.__NAME__);return;}
+  _route();
+}
 window.addEventListener('hashchange',_applyHash);
-try{_applyHash();}catch(e){}
+try{_bootRoute();}catch(e){}
 function loadStats(){var tt=document.getElementById('stTotal');if(tt)tt.textContent='…';fetch('/api/stats').then(function(r){return r.json();}).then(function(d){STATS=d;renderStats();}).catch(function(){STATS={configured:false};renderStats();});}
 function setStRange(n){stRange=n;renderStats();}
 function renderStats(){

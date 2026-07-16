@@ -1,0 +1,10 @@
+{
+  "rewrites": [
+    { "source": "/nombre/:name", "destination": "/api/name?n=:name" },
+    { "source": "/sitemap.xml", "destination": "/api/sitemap" }
+  ],
+  "functions": {
+    "api/name.js": { "includeFiles": "index.html" },
+    "api/sitemap.js": { "includeFiles": "index.html" }
+  }
+}

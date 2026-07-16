@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://nombretorio.vercel.app/sitemap.xml
