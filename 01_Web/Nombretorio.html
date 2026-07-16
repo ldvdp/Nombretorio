@@ -1188,10 +1188,16 @@ function shmDecode(s){var d=document.createElement('textarea');d.innerHTML=(s||'
 function openShare(name,cat,desc){
   var nm=disp(shmDecode(name).trim()); if(!nm) return;
   var dd=shmDecode(desc||'').trim();
+  // Al abrir por enlace directo no llega descripcion: la construimos con los datos del nombre.
+  if(!dd){try{var _d=nameDetail(nm),_b=[];
+    if(_d.rank!=null)_b.push('nº '+_d.rank+' en España');
+    if(_d.total!=null)_b.push(fmt(_d.total)+' nacimientos');
+    if(!_b.length&&_d.cards.length)_b.push(shmDecode(_d.cards[0].d));
+    dd=_b.join(' · ');}catch(e){}}
   document.getElementById('shmName').textContent=nm;
   document.getElementById('shmCat').innerHTML=cat||'';
   document.getElementById('shmDesc').textContent=dd;
-  var url='https://nombretorio.vercel.app/';
+  var url='https://nombretorio.vercel.app/#nombre/'+encodeURIComponent(nm);
   var txt='✨ '+nm+(dd?' — '+dd:'')+'\n\nDescubre más nombres en '+url;
   window._shmTxt=txt; window._shmName=nm;
   var e=encodeURIComponent(txt);
@@ -1201,8 +1207,10 @@ function openShare(name,cat,desc){
   document.getElementById('shmNative').style.display=navigator.share?'block':'none';
   try{renderNameDetail(nm);}catch(e){document.getElementById('shmDetail').innerHTML='';}
   document.getElementById('shareModal').style.display='flex';
+  try{_setHash('nombre/'+encodeURIComponent(nm));}catch(e){}
 }
-function closeShare(ev){ if(!ev || ev.target.id==='shareModal' || (''+ (ev.target.className||'')).indexOf('shm-x')>=0){ document.getElementById('shareModal').style.display='none'; } }
+function _clearNameHash(){try{if((location.hash||'').slice(1).toLowerCase().indexOf('nombre/')===0){if(history.pushState)history.pushState(null,'',location.pathname+location.search);else location.hash='';}}catch(e){}}
+function closeShare(ev){ if(!ev || ev.target.id==='shareModal' || (''+ (ev.target.className||'')).indexOf('shm-x')>=0){ document.getElementById('shareModal').style.display='none'; _clearNameHash(); } }
 function shmNativeShare(){ if(navigator.share){ navigator.share({title:'Nombretorio · '+window._shmName,text:window._shmTxt,url:'https://nombretorio.vercel.app/'}).catch(function(){}); } }
 function shmCopyLink(){ var b=document.getElementById('shmCopy'); var done=function(){b.innerHTML='&#10003; Copiado';setTimeout(function(){b.innerHTML='&#128203; Copiar';},1600);}; if(navigator.clipboard){navigator.clipboard.writeText(window._shmTxt||'').then(done).catch(function(){});} }
 function shmDeleg(id,sel,fn){ var el=document.getElementById(id); if(el) el.addEventListener('click',function(e){ var c=e.target.closest(sel); if(c) fn(c); }); }
@@ -1323,10 +1331,19 @@ function openStats(){document.getElementById('statsModal').style.display='flex';
 function closeStats(ev){if(ev&&ev.target!==ev.currentTarget&&!(ev.target.classList&&ev.target.classList.contains('shm-x')))return;var m=document.getElementById('statsModal');if(m)m.style.display='none';_clearHash('stats');}
 function openCookies(){document.getElementById('cookieModal').style.display='flex';_setHash('cookies');}
 function closeCookies(ev){if(ev&&ev.target!==ev.currentTarget&&!(ev.target.classList&&ev.target.classList.contains('shm-x')))return;var m=document.getElementById('cookieModal');if(m)m.style.display='none';_clearHash('cookies');}
-function _applyHash(){var h=(location.hash||'').slice(1).toLowerCase();
+function _applyHash(){var raw=(location.hash||'').slice(1), h=raw.toLowerCase();
+  if(h.indexOf('nombre/')===0){
+    var nm=''; try{nm=decodeURIComponent(raw.slice(7));}catch(e){nm=raw.slice(7);}
+    nm=nm.replace(/\+/g,' ').trim();
+    if(nm && !_shmOpenFor(nm)) openShare(nm);
+    return;
+  }
   if(h==='stats'||h==='visitas'){document.getElementById('statsModal').style.display='flex';loadStats();}
   else if(h==='cookies'||h==='privacidad'){document.getElementById('cookieModal').style.display='flex';}
-  else{_hideDeepModals();}}
+  else{_hideDeepModals();var s=document.getElementById('shareModal');if(s)s.style.display='none';}}
+/* evita reabrir/reescribir el hash si ya esta abierto ese mismo nombre */
+function _shmOpenFor(nm){var s=document.getElementById('shareModal');
+  return !!(s&&s.style.display==='flex'&&window._shmName&&_dkey(window._shmName)===_dkey(nm));}
 (function(){var b=document.body;['shareModal','favModal','statsModal','cookieModal'].forEach(function(id){var m=document.getElementById(id);if(m&&m.parentElement!==b)b.appendChild(m);});})();
 window.addEventListener('hashchange',_applyHash);
 try{_applyHash();}catch(e){}
