@@ -1191,25 +1191,40 @@ function goApp(id){document.body.classList.remove('home');var tab=[].slice.call(
 function goHome(){document.body.classList.add('home');window.scrollTo(0,0);}
 
 function _dkey(s){return shmDecode(s+'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'');}
+var UNISEX_MIN=0.15; // la minoria debe pesar al menos esto para considerar el nombre unisex
 function nameDetail(nm){
   var key=_dkey(nm);
-  var d={gender:'',rank:null,total:null,years:null,peak:null,trans:null,cards:[]};
+  var d={gender:'',rank:null,total:null,years:null,peak:null,trans:null,cards:[],shareF:null};
   var inM=false,inF=false;
   var b=BB.find(function(x){return _dkey(x.n)===key;});
   var gg=BG.find(function(x){return _dkey(x.n)===key;});
-  if(b){d.years=b.y;d.total=b.t;d.peak=b.pk;inM=true;}
-  if(gg){if(!d.years){d.years=gg.y;d.total=gg.t;d.peak=gg.pk;} inF=true;}
   var m=M5K.find(function(x){return _dkey(x[0])===key;});
   var w=W5K.find(function(x){return _dkey(x[0])===key;});
-  if(m){inM=true; if(d.rank==null)d.rank=m[1]; if(d.total==null)d.total=m[2];}
-  if(w){inF=true; if(d.rank==null)d.rank=w[1]; if(d.total==null)d.total=w[2];}
+  var tM=b?b.t:(m?m[2]:null), tF=gg?gg.t:(w?w[2]:null);
+  if(b||m)inM=true; if(gg||w)inF=true;
   var tk=Object.keys(MULTI_DATA).find(function(k){return _dkey(k)===key;}); if(tk)d.trans=MULTI_DATA[tk];
   [HIST_DATA,COUNTRY_DATA,WORLD_DATA,ORIGEN_DATA,BIBLICAL_DATA].forEach(function(B){
     ['n','f'].forEach(function(gk){(B[gk]||[]).forEach(function(it){
       if(_dkey(it.n)===key){d.cards.push({cat:it.cat,d:it.d}); if(gk==='n')inM=true; else inF=true;}
     });});
   });
-  d.gender = inM&&inF ? 'u' : inM ? 'n' : inF ? 'f' : '';
+  // Genero por magnitud: aparecer en ambas listas no basta (p.ej. 187 mujeres 'Juan' frente a 33.731 hombres).
+  var g='';
+  if(tM!=null&&tF!=null&&(tM+tF)>0){
+    d.shareF=tF/(tM+tF);
+    g=(Math.min(tM,tF)/(tM+tF)>=UNISEX_MIN)?'u':(tM>=tF?'n':'f');
+  }
+  else if(tM!=null&&tM>0)g='n';
+  else if(tF!=null&&tF>0)g='f';
+  else if(inM&&inF)g='u';
+  else if(inM)g='n';
+  else if(inF)g='f';
+  d.gender=g;
+  // Cifras (ranking/total/evolucion) del genero dominante
+  var domM=(g==='f')?false:(g==='u'?((tM||0)>=(tF||0)):(g==='n'?true:inM));
+  if(domM){ if(b){d.years=b.y;d.peak=b.pk;} if(m)d.rank=m[1]; d.total=tM; }
+  else { if(gg){d.years=gg.y;d.peak=gg.pk;} if(w)d.rank=w[1]; d.total=tF; }
+  if(d.total==null)d.total=(tM!=null?tM:tF);
   return d;
 }
 function ndChart(y){
