@@ -439,6 +439,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.t
 .ck-body li{margin-bottom:5px}
 .ck-body b{color:#2a2118}
 .nd-cap{font-size:.68rem;color:#9a8f7c;text-align:center;margin-top:5px}
+.nd-rel{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.nd-rel-a{font-size:.78rem;background:#fff;border:1px solid #ece0c8;border-radius:20px;padding:5px 12px;color:#7a4a3a;text-decoration:none;font-family:'Playfair Display',serif;transition:border-color .15s,color .15s}
+.nd-rel-a:hover{border-color:#d9a94a;color:#c0511a}
 </style>
 </head>
 <body class="home">
@@ -1291,6 +1294,10 @@ function renderNameDetail(nm){
     h+='<div class="nd-sec"><div class="nd-h">Significado y origen</div>'+cc.map(function(c){return '<div class="nd-mean"><span class="nd-cat">'+c.cat+'</span> '+c.d+'</div>';}).join('')+'</div>';}
   if(d.trans){var ks=Object.keys(d.trans).slice(0,8);
     h+='<div class="nd-sec"><div class="nd-h">En otros idiomas</div><div class="nd-langs">'+ks.map(function(k){return '<span class="nd-lang"><b>'+d.trans[k]+'</b> '+k+'</span>';}).join('')+'</div></div>';}
+  try{var _rel=relatedNames(nm,d.gender);
+    if(_rel.length){h+='<div class="nd-sec"><div class="nd-h">Nombres relacionados</div><div class="nd-rel">'+
+      _rel.map(function(x){return '<a class="nd-rel-a" href="/nombre/'+_nameSlug(x)+'" onclick="return _relClick(event,\''+(x+'').replace(/'/g,"\\'")+'\')">'+disp(x)+'</a>';}).join('')+'</div></div>';}
+  }catch(e){}
   el.innerHTML=h;
 }
 
@@ -1483,6 +1490,19 @@ function renderStats(){
     if(m&&m.style.display==='flex'&&!openId)onOpen(id);
   });
 })();
+
+function relatedNames(nm,g){
+  var arr=(g==='f')?W5K:M5K, k=_dkey(nm), si=-1, i;
+  for(i=0;i<arr.length;i++){if(_dkey(arr[i][0])===k){si=i;break;}}
+  if(si<0)return [];
+  var out=[];
+  for(var d=1;out.length<6&&d<arr.length;d++){
+    if(arr[si+d])out.push(arr[si+d][0]);
+    if(arr[si-d]&&out.length<6)out.push(arr[si-d][0]);
+  }
+  return out;
+}
+function _relClick(ev,nm){if(ev&&ev.preventDefault)ev.preventDefault();try{openShare(nm);}catch(e){}return false;}
 </script>
 </body>
 </html>

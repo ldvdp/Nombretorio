@@ -123,7 +123,38 @@ function buildIndex(html) {
       if (s && Object.keys(o).length) TRANS.set(s, o);
     }
   }
-  return { idx, MEAN, TRANS };
+
+  // Orden por ranking dentro de cada género, para enlazar nombres cercanos en popularidad.
+  const order = { n: [], f: [] };
+  for (const [s, e] of idx)
+    if (e.rank != null && (e.gender === "n" || e.gender === "f"))
+      order[e.gender].push({ slug: s, display: e.display, rank: e.rank });
+  order.n.sort((a, b) => a.rank - b.rank);
+  order.f.sort((a, b) => a.rank - b.rank);
+
+  return { idx, MEAN, TRANS, order };
+}
+
+// Nombres relacionados: vecinos en el ranking del mismo género (igual de populares).
+// Si no hay ranking (nombres especiales), caen a otros con la misma inicial.
+function relatedFor(slug, entry, order) {
+  const g = entry.gender;
+  if ((g === "n" || g === "f") && entry.rank != null) {
+    const list = order[g];
+    const pos = list.findIndex((x) => x.slug === slug);
+    if (pos >= 0) {
+      const out = [];
+      for (let d = 1; out.length < 8 && d < list.length; d++) {
+        if (list[pos + d]) out.push(list[pos + d]);
+        if (list[pos - d] && out.length < 8) out.push(list[pos - d]);
+      }
+      return out;
+    }
+  }
+  const init = (slug || "")[0];
+  const pool = order.n.concat(order.f).filter((x) => x.slug[0] === init && x.slug !== slug);
+  pool.sort((a, b) => a.rank - b.rank);
+  return pool.slice(0, 8);
 }
 
 function metaFor(entry, slug) {
@@ -143,7 +174,7 @@ function metaFor(entry, slug) {
 // Contenido real de la ficha, en HTML. El JS lo reemplaza por la version rica
 // (tarjetas + grafico) al cargar; esto es lo que ven los buscadores y quien no
 // tenga JS, y es lo que hace que cada pagina sea unica.
-function seoBlock(entry, mean, trans) {
+function seoBlock(entry, mean, trans, related) {
   const n = esc(entry.display);
   const g = entry.gender;
   const gTxt = g === "n" ? "un nombre de niño" : g === "f" ? "un nombre de niña" : g === "u" ? "un nombre unisex" : "un nombre";
@@ -162,7 +193,37 @@ function seoBlock(entry, mean, trans) {
       .join("");
     h += `<h2 ${H}>${n} en otros idiomas</h2><ul style="list-style:none;padding:0;margin:0;text-align:center">${li}</ul>`;
   }
+  if (related && related.length) {
+    const links = related
+      .map((r) => `<a href="/nombre/${r.slug}" style="display:inline-block;font-size:.78rem;background:#fff;border:1px solid #ece0c8;border-radius:20px;padding:5px 12px;margin:0 5px 6px 0;color:#7a4a3a;text-decoration:none">${esc(r.display)}</a>`)
+      .join("");
+    h += `<h2 ${H}>Nombres relacionados</h2><nav style="text-align:center">${links}</nav>`;
+  }
+  h += `<p style="text-align:center;margin:14px 0 0"><a href="/" style="font-size:.76rem;color:#b0872c;text-decoration:none">‹ Explorar todos los nombres</a></p>`;
   return h;
+}
+
+function jsonLd(entry, meta) {
+  const crumb = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Inicio", item: SITE + "/" },
+      { "@type": "ListItem", position: 2, name: entry.display },
+    ],
+  };
+  const page = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: meta.title,
+    description: meta.desc,
+    url: meta.url,
+    inLanguage: "es-ES",
+    primaryImageOfPage: meta.img,
+    isPartOf: { "@type": "WebSite", name: "Nombretorio", url: SITE + "/" },
+  };
+  const s = JSON.stringify([crumb, page]).replace(/</g, "\\u003c");
+  return `<script type="application/ld+json">${s}</script>`;
 }
 
 function patch(html, meta, entry, seo, noindex) {
@@ -182,14 +243,16 @@ function patch(html, meta, entry, seo, noindex) {
     .replace(/<meta name="twitter:image" content="[^"]*">/, `<meta name="twitter:image" content="${im}">`)
     .replace(/<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${u}">`);
 
-  // La ficha, ya rellena y visible sin JS
+  // La ficha, ya rellena y visible sin JS. El nombre pasa a <h1> (era un <div>):
+  // asi el encabezado principal de la pagina es el nombre, no "Nombretorio".
   out = out
-    .replace('<div class="shm-name" id="shmName"></div>', `<div class="shm-name" id="shmName">${esc(entry.display)}</div>`)
+    .replace('<div class="shm-name" id="shmName"></div>', `<h1 class="shm-name" id="shmName">${esc(entry.display)}</h1>`)
     .replace('<div class="shm-detail" id="shmDetail"></div>', `<div class="shm-detail" id="shmDetail">${seo}</div>`);
 
   const inject =
     (noindex ? '<meta name="robots" content="noindex">' : "") +
     "<style>#shareModal{display:flex}</style>" +
+    (noindex ? "" : jsonLd(entry, meta)) +
     `<script>window.__NAME__=${JSON.stringify(entry.display)};</script>`;
   return out.replace("</head>", inject + "</head>");
 }
@@ -206,7 +269,8 @@ export default async function handler(req, res) {
       display: slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
       rank: null, total: null, gender: "", births: null,
     };
-    const seo = seoBlock(entry, CACHE.MEAN.get(slug), CACHE.TRANS.get(slug));
+    const related = found ? relatedFor(slug, entry, CACHE.order) : [];
+    const seo = seoBlock(entry, CACHE.MEAN.get(slug), CACHE.TRANS.get(slug), related);
     res.setHeader("content-type", "text/html; charset=utf-8");
     res.setHeader("cache-control", found ? "public, s-maxage=86400, stale-while-revalidate=604800" : "public, s-maxage=60");
     res.status(found ? 200 : 404).send(patch(html, metaFor(entry, slug), entry, seo, !found));
