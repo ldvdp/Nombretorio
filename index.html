@@ -533,6 +533,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.t
 <div class="sec on" id="s1">
   <div class="ctrl">
     <div class="row">
+      <select id="countrySel" onchange="setCountry(this.value)" title="Pa&iacute;s de los datos" aria-label="Pa&iacute;s"><option value="es">&#127466;&#127480; Espa&ntilde;a</option><option value="us">&#127482;&#127480; EE. UU.</option></select>
       <div class="sw">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         <input type="text" id="qi" placeholder="Buscar nombre..." oninput="render()">
@@ -618,6 +619,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.t
       </div>
     </div>
     <div class="row">
+      <select id="countrySel5" onchange="setCountry(this.value)" title="Pa&iacute;s de los datos" aria-label="Pa&iacute;s"><option value="es">&#127466;&#127480; Espa&ntilde;a</option><option value="us">&#127482;&#127480; EE. UU.</option></select>
       <select id="sort5" onchange="pg5k=0;render5k()">
         <option value="rank">M&aacute;s populares primero</option>
         <option value="az">A - Z</option>
@@ -819,6 +821,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.t
 <script>
 
 const YEARS=Array.from({length:21},(_,i)=>2003+i);
+var Y0=2003,CNAME='España',CMETRIC='personas en España',activeCountry='es';
 
 /* Los datos del INE vienen sin tildes ("Lucia", "Jose"). Acentuamos SOLO al mostrar:
    los datos y las claves de busqueda siguen intactos. Mapa por palabra, asi los
@@ -847,7 +850,7 @@ victor:'Víctor',visitacion:'Visitación'};
 /* clave sin tildes ni mayusculas; conserva la longitud (1 caracter por letra),
    asi los indices sirven para resaltar sobre el texto ya acentuado */
 function _tkey(s){return (s+'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');}
-function disp(n){if(!n)return n;return (n+'').split(' ').map(function(w){return TILDES[_tkey(w)]||w;}).join(' ');}
+function disp(n){if(!n)return n;if(activeCountry!=='es')return n;return (n+'').split(' ').map(function(w){return TILDES[_tkey(w)]||w;}).join(' ');}
 function hlDisp(name,q){
   var d=disp(name); if(!q)return d;
   var flat=_tkey(d), qq=_tkey(q); if(!qq)return d;
@@ -961,9 +964,9 @@ function render(){
       <span class="gd2 ${item._g==='n'?'gn':'gf'}"></span>
       <div class="nom">${disp(item.n)}</div>
       <div class="spk"><canvas style="width:100%;display:block" data-c="${col}" data-v="${item.y.join(',')}"></canvas></div>
-      <div class="mt2">${tTag||''}<span class="fr">${d23>0?fmt(d23)+' en 2023':d19>0?fmt(d19)+' en 2019':''}</span></div>
+      <div class="mt2">${tTag||''}<span class="fr">${d23>0?fmt(d23)+' en '+(Y0+20):d19>0?fmt(d19)+' en '+(Y0+16):''}</span></div>
       <span class="fs">${fav?'&#10024;':'&#10025;'}</span>
-      <button class="nc-share" title="Compartir" aria-label="Compartir nombre" onclick="event.stopPropagation();openShare('${item.n.replace(/'/g,"\\'")}','','${d23>0?fmt(d23)+' nacimientos en 2023':'uno de los m&aacute;s puestos en Espa&ntilde;a'}')">&#128279;</button>
+      <button class="nc-share" title="Compartir" aria-label="Compartir nombre" onclick="event.stopPropagation();openShare('${item.n.replace(/'/g,"\\'")}','','${d23>0?fmt(d23)+' nacimientos en '+(Y0+20):'uno de los m&aacute;s puestos en '+CNAME}')">&#128279;</button>
     </div>`;
   }).join('');
 
@@ -1047,13 +1050,13 @@ function render5k(){
     const crossHint=g==='n'&&wSet.has(n.toLowerCase())?'<span title="Tambi&eacute;n existe como nombre de mujer" style="font-size:.75rem;color:#9C27B0;margin-left:5px">&#10024;</span>':g==='f'&&mSet.has(n.toLowerCase())?'<span title="Tambi&eacute;n existe como nombre de hombre" style="font-size:.75rem;color:#1565C0;margin-left:5px">&#10024;</span>':'';
     return `<tr>
       <td>${rb(r,g)}</td>
-      <td><strong style="font-family:Playfair Display,serif">${hlDisp(n,q5)}</strong>${crossHint}<button class="sh5" title="Compartir" aria-label="Compartir nombre" onclick="openShare('${n.replace(/'/g,"\\'")}','','${g==='n'?'nombre de hombre &middot; puesto '+r+' en Espa&ntilde;a':'nombre de mujer &middot; puesto '+r+' en Espa&ntilde;a'}')">&#128279;</button></td>
+      <td><strong style="font-family:Playfair Display,serif">${hlDisp(n,q5)}</strong>${crossHint}<button class="sh5" title="Compartir" aria-label="Compartir nombre" onclick="openShare('${n.replace(/'/g,"\\'")}','','${g==='n'?'nombre de hombre &middot; puesto '+r+' en '+CNAME:'nombre de mujer &middot; puesto '+r+' en '+CNAME}')">&#128279;</button></td>
       <td><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;min-width:60px;max-width:120px;height:6px;background:var(--bo);border-radius:3px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${barCol};border-radius:3px"></div></div><span style="font-size:.72rem;color:var(--mu);white-space:nowrap">${pct}%</span></div></td>
       <td><strong>${fmt(t)}</strong> <span style="font-size:.7rem;color:var(--mu)">${(t/25e6*1000).toFixed(2)}&#8240;</span></td>
     </tr>`;
   }).join('');
 
-  document.getElementById('tbl5k').innerHTML=total===0?`<div style="text-align:center;padding:40px;color:var(--mu)">&#128269; Sin resultados para "<strong>${q5}</strong>"</div>`:`<table style="width:100%;border-collapse:collapse;font-size:.83rem"><thead><tr><th style="background:var(--ink);color:var(--cr);padding:9px 12px;text-align:left;border-radius:10px 0 0 10px;font-size:.72rem;letter-spacing:.04em;white-space:nowrap">Rango</th><th style="background:var(--ink);color:var(--cr);padding:9px 12px;text-align:left;font-size:.72rem;letter-spacing:.04em">Nombre</th><th style="background:var(--ink);color:var(--cr);padding:9px 12px;text-align:left;font-size:.72rem;letter-spacing:.04em">Frecuencia</th><th style="background:var(--ink);color:var(--cr);padding:9px 12px;text-align:left;border-radius:0 10px 10px 0;font-size:.72rem;letter-spacing:.04em;white-space:nowrap">Total en Espa&ntilde;a</th></tr></thead><tbody>${rows}</tbody></table>`;
+  document.getElementById('tbl5k').innerHTML=total===0?`<div style="text-align:center;padding:40px;color:var(--mu)">&#128269; Sin resultados para "<strong>${q5}</strong>"</div>`:`<table style="width:100%;border-collapse:collapse;font-size:.83rem"><thead><tr><th style="background:var(--ink);color:var(--cr);padding:9px 12px;text-align:left;border-radius:10px 0 0 10px;font-size:.72rem;letter-spacing:.04em;white-space:nowrap">Rango</th><th style="background:var(--ink);color:var(--cr);padding:9px 12px;text-align:left;font-size:.72rem;letter-spacing:.04em">Nombre</th><th style="background:var(--ink);color:var(--cr);padding:9px 12px;text-align:left;font-size:.72rem;letter-spacing:.04em">Frecuencia</th><th style="background:var(--ink);color:var(--cr);padding:9px 12px;text-align:left;border-radius:0 10px 10px 0;font-size:.72rem;letter-spacing:.04em;white-space:nowrap">Total ${CNAME}</th></tr></thead><tbody>${rows}</tbody></table>`;
 
   const totalPgs=Math.ceil(total/pp5)||1;
   const btnStyle='padding:7px 11px;border:1.5px solid var(--bo);border-radius:9px;background:var(--ca);cursor:pointer;font-family:DM Sans,sans-serif;font-size:.78rem';
@@ -1265,7 +1268,7 @@ function openShare(name,cat,desc){
   // Al abrir por enlace directo no llega descripcion: la construimos con los datos del nombre.
   if(!dd){try{var _d=nameDetail(nm),_b=[];
     if(_d.rank!=null)_b.push('nº '+_d.rank+' en España');
-    if(_d.people!=null)_b.push(fmt(_d.people)+' personas en Espa\u00f1a');
+    if(_d.people!=null)_b.push(fmt(_d.people)+' '+CMETRIC);
     if(!_b.length&&_d.cards.length)_b.push(shmDecode(_d.cards[0].d));
     dd=_b.join(' · ');}catch(e){}}
   document.getElementById('shmName').textContent=nm;
@@ -1347,7 +1350,7 @@ function nameDetail(nm){
 function ndChart(y){
   var w=250,h=54,n=y.length,mx=Math.max.apply(null,y),mn=Math.min.apply(null,y),rng=(mx-mn)||1;
   var pts=y.map(function(v,i){var px=(i/(n-1))*w,py=h-4-((v-mn)/rng)*(h-12);return px.toFixed(1)+','+py.toFixed(1);});
-  return '<svg class="nd-spark" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none"><defs><linearGradient id="ndg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c9a84c" stop-opacity=".34"/><stop offset="1" stop-color="#c9a84c" stop-opacity="0"/></linearGradient></defs><polygon points="0,'+h+' '+pts.join(' ')+' '+w+','+h+'" fill="url(#ndg)"/><polyline points="'+pts.join(' ')+'" fill="none" stroke="#c9a84c" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg><div class="nd-yr"><span>2003</span><span>pico '+(y.indexOf(mx)+2003)+'</span><span>2023</span></div>';
+  return '<svg class="nd-spark" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none"><defs><linearGradient id="ndg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c9a84c" stop-opacity=".34"/><stop offset="1" stop-color="#c9a84c" stop-opacity="0"/></linearGradient></defs><polygon points="0,'+h+' '+pts.join(' ')+' '+w+','+h+'" fill="url(#ndg)"/><polyline points="'+pts.join(' ')+'" fill="none" stroke="#c9a84c" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg><div class="nd-yr"><span>'+Y0+'</span><span>pico '+(y.indexOf(mx)+Y0)+'</span><span>'+(Y0+20)+'</span></div>';
 }
 function renderNameDetail(nm){
   var el=document.getElementById('shmDetail'); if(!el)return; el.innerHTML='';
@@ -1355,11 +1358,11 @@ function renderNameDetail(nm){
   var st=[];
   if(d.gender){var gi=d.gender==='n'?'&#9794;':d.gender==='f'?'&#9792;':'&#9895;',gl=d.gender==='n'?'Ni&ntilde;o':d.gender==='f'?'Ni&ntilde;a':'Unisex';
     st.push('<div class="nd-stat"><span class="nd-k">'+gi+'</span><span class="nd-l">'+gl+'</span></div>');}
-  if(d.rank!=null) st.push('<div class="nd-stat"><span class="nd-k">#'+d.rank+'</span><span class="nd-l">ranking Espa&ntilde;a</span></div>');
-  if(d.people!=null) st.push('<div class="nd-stat"><span class="nd-k">'+fmt(d.people)+'</span><span class="nd-l">personas en Espa&ntilde;a</span></div>');
+  if(d.rank!=null) st.push('<div class="nd-stat"><span class="nd-k">#'+d.rank+'</span><span class="nd-l">ranking '+CNAME+'</span></div>');
+  if(d.people!=null) st.push('<div class="nd-stat"><span class="nd-k">'+fmt(d.people)+'</span><span class="nd-l">'+CMETRIC+'</span></div>');
   if(st.length) h+='<div class="nd-stats">'+st.join('')+'</div>';
-  if(d.years) h+='<div class="nd-sec"><div class="nd-h">Evoluci&oacute;n 2003&ndash;2023</div>'+ndChart(d.years)+
-    (d.births!=null?'<div class="nd-cap">'+fmt(d.births)+' nacimientos entre 2003 y 2023</div>':'')+'</div>';
+  if(d.years) h+='<div class="nd-sec"><div class="nd-h">Evoluci&oacute;n '+Y0+'&ndash;'+(Y0+20)+'</div>'+ndChart(d.years)+
+    (d.births!=null?'<div class="nd-cap">'+fmt(d.births)+' nacimientos entre '+Y0+' y '+(Y0+20)+'</div>':'')+'</div>';
   if(d.cards.length){var seen={},cc=d.cards.filter(function(c){if(seen[c.d])return false;seen[c.d]=1;return true;}).slice(0,3);
     h+='<div class="nd-sec"><div class="nd-h">Significado y origen</div>'+cc.map(function(c){return '<div class="nd-mean"><span class="nd-cat">'+c.cat+'</span> '+c.d+'</div>';}).join('')+'</div>';}
   if(d.trans){var ks=Object.keys(d.trans).slice(0,8);
@@ -1588,9 +1591,9 @@ function cmpOverlay(items){
   }).join('');
   var leg=items.map(function(it,i){var col=CMP_COLORS[i%CMP_COLORS.length];
     return '<span class="cmp-leg"><span class="cmp-dot" style="background:'+col+'"></span>'+it.name+'</span>';}).join('');
-  return '<div class="nd-h">Evoluci&oacute;n 2003&ndash;2023</div>'+
+  return '<div class="nd-h">Evoluci&oacute;n '+Y0+'&ndash;'+(Y0+20)+'</div>'+
     '<svg class="cmp-svg" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">'+lines+'</svg>'+
-    '<div class="cmp-yr"><span>2003</span><span>2023</span></div>'+
+    '<div class="cmp-yr"><span>'+Y0+'</span><span>'+(Y0+20)+'</span></div>'+
     '<div class="cmp-legend">'+leg+'</div>';
 }
 function renderCompare(){
@@ -1634,6 +1637,37 @@ function toggleView(){
   ng.classList.toggle('compact', compact);
   try{localStorage.setItem('nbt_view', compact?'compact':'grid');}catch(e){}
   var b=document.getElementById('viewToggle'); if(b){b.innerHTML=compact?'&#9783;':'&#9638;'; b.title=compact?'Vista tarjetas':'Vista compacta';}
+}
+
+/* Multi-pais: Espana va embebida (BB/BG/M5K/W5K); otros paises se cargan bajo
+   demanda (/data/<code>.json) y se intercambian mutando los arrays IN PLACE
+   (son const, pero .length=0 + push conserva la referencia y todo el codigo ve
+   los nuevos datos). No se persiste: cada carga arranca en Espana, para que las
+   paginas /nombre/ (que son de Espana en el servidor) no entren en conflicto. */
+var CDATA={es:{data:{BB:BB.slice(),BG:BG.slice(),M5K:M5K.slice(),W5K:W5K.slice()},
+  meta:{code:'es',y0:2003,name:'España',metricLabel:'personas en España'}}};
+function _cswap(arr,src){arr.length=0;Array.prototype.push.apply(arr,src);}
+function _capply(code){
+  var e=CDATA[code];
+  _cswap(BB,e.data.BB);_cswap(BG,e.data.BG);_cswap(M5K,e.data.M5K);_cswap(W5K,e.data.W5K);
+  activeCountry=code; Y0=e.meta.y0; CNAME=e.meta.name; CMETRIC=e.meta.metricLabel;
+  ['countrySel','countrySel5'].forEach(function(id){var s=document.getElementById(id);if(s)s.value=code;});
+  try{if(typeof render==='function')render();}catch(e2){}
+  try{if(typeof render5k==='function'){pg5k=0;render5k();}}catch(e2){}
+}
+function setCountry(code){
+  if(code===activeCountry){return;}
+  if(CDATA[code]){_capply(code);return;}
+  var sels=['countrySel','countrySel5'].map(function(id){return document.getElementById(id);});
+  sels.forEach(function(s){if(s)s.disabled=true;});
+  fetch('/data/'+code+'.json').then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(j){
+    CDATA[code]={data:{BB:j.BB,BG:j.BG,M5K:j.M5K,W5K:j.W5K},meta:j.meta};
+    sels.forEach(function(s){if(s)s.disabled=false;});
+    _capply(code);
+  }).catch(function(){
+    sels.forEach(function(s){if(s){s.disabled=false;s.value=activeCountry;}});
+    alert('No se pudieron cargar los datos de ese país. Inténtalo de nuevo.');
+  });
 }
 </script>
 </body>
