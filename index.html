@@ -458,6 +458,17 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.t
 .cmp-tbl td:first-child{text-align:left;display:flex;align-items:center;gap:7px}
 .cmp-nm{font-family:'Playfair Display',serif;font-weight:700;color:#2a2118}
 .cmp-note{font-size:.72rem;color:#9a8f7c;margin-top:10px}
+.vbtn{background:rgba(255,255,255,.72);border:1px solid rgba(28,28,28,.08);border-radius:14px;cursor:pointer;font-size:1rem;line-height:1;color:#5d564f;padding:0 12px;transition:background .16s,color .16s,border-color .16s}
+.vbtn:hover{background:#fff;color:#b0872c;border-color:#d9a94a}
+.hme-rnd .hme-i{filter:saturate(1.2)}
+#ng.compact{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:7px}
+#ng.compact .nc{padding:9px 11px}
+#ng.compact .spk{display:none}
+#ng.compact .mt2{display:none}
+#ng.compact .nom{font-size:1rem;margin-bottom:0;padding-right:16px}
+#ng.compact .rb{top:7px;right:7px}
+#ng.compact .fs{bottom:7px}
+#ng.compact .nc-share{bottom:6px}
 </style>
 </head>
 <body class="home">
@@ -490,6 +501,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.t
     <svg class="hero-flourish" viewBox="0 0 260 22" aria-hidden="true"><g fill="none" stroke="#caa14e" stroke-width="1.4"><path d="M12,11 H102"/><path d="M158,11 H248"/></g><path d="M130,3 L138,11 130,19 122,11Z" fill="#caa14e"/><circle cx="106" cy="11" r="2.6" fill="#caa14e"/><circle cx="154" cy="11" r="2.6" fill="#caa14e"/></svg>
     <div class="hero-tag">nombres de todo el mundo</div>
     <div class="hero-menu">
+      <button class="hme hme-rnd" onclick="randomName()"><span class="hme-i">&#127922;</span><span class="hme-t">Sorpr&eacute;ndeme</span><span class="hme-s">Un nombre al azar para inspirarte</span></button>
       <button class="hme" onclick="goApp('s1')"><span class="hme-i">&#128200;</span><span class="hme-t">Tendencias</span><span class="hme-s">Los nombres m&aacute;s puestos en Espa&ntilde;a</span></button>
       <button class="hme" onclick="goApp('s6')"><span class="hme-i">&#128506;&#65039;</span><span class="hme-t">Mapa</span><span class="hme-s">Espa&ntilde;a en pergamino y el globo del mundo</span></button>
       <button class="hme" onclick="goApp('s4')"><span class="hme-i">&#10024;</span><span class="hme-t">Especiales</span><span class="hme-s">Prerromanos, del mundo, b&iacute;blicos&hellip;</span></button>
@@ -539,6 +551,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.t
         <option value="rise">Los que m&aacute;s suben</option>
         <option value="fall">Los que m&aacute;s bajan</option>
       </select>
+      <button type="button" class="vbtn" id="viewToggle" onclick="toggleView()" title="Cambiar vista" aria-label="Cambiar vista">&#9638;</button>
+      <button type="button" class="vbtn" onclick="randomName()" title="Nombre al azar" aria-label="Nombre al azar">&#127922;</button>
       <select id="limitSel" onchange="render()">
         <option value="50">50</option>
         <option value="100">100</option>
@@ -916,6 +930,7 @@ function render(){
   else if(sort==='fall')pool.sort((a,b2)=>(b2.y[9]-b2.y[20])-(a.y[9]-a.y[20]));
 
   const shown=pool.slice(0,lim);
+  try{var _cmp=localStorage.getItem('nbt_view')==='compact';var _ng=document.getElementById('ng'); if(_ng)_ng.classList.toggle('compact',_cmp);var _vb=document.getElementById('viewToggle'); if(_vb){_vb.innerHTML=_cmp?'&#9783;':'&#9638;';_vb.title=_cmp?'Vista tarjetas':'Vista compacta';}}catch(e){}
   document.getElementById('sb').innerHTML=`
     <div class="sp"><strong>${fmt(pool.length)}</strong> nombres</div>
     <div class="sp">Vista <strong>${shown.length}</strong> / ${fmt(pool.length)}</div>
@@ -1597,6 +1612,23 @@ function renderCompare(){
      '<tbody>'+rows+'</tbody></table></div></div>';
   if(favs.length>6) h+='<div class="cmp-note">Se comparan los 6 primeros de tu lista.</div>';
   body.innerHTML=h;
+}
+
+function randomName(){
+  var pool=[];
+  try{ BB.forEach(function(x){pool.push(x.n);}); BG.forEach(function(x){pool.push(x.n);});
+    [HIST_DATA,COUNTRY_DATA,WORLD_DATA,ORIGEN_DATA,BIBLICAL_DATA].forEach(function(B){['n','f'].forEach(function(g){(B[g]||[]).forEach(function(it){pool.push(shmDecode(it.n));});});}); }catch(e){}
+  if(!pool.length)return;
+  var nm=pool[Math.floor(Math.random()*pool.length)];
+  if(document.body.classList.contains('home'))document.body.classList.remove('home');
+  openShare(nm);
+}
+function toggleView(){
+  var ng=document.getElementById('ng'); if(!ng)return;
+  var compact=!ng.classList.contains('compact');
+  ng.classList.toggle('compact', compact);
+  try{localStorage.setItem('nbt_view', compact?'compact':'grid');}catch(e){}
+  var b=document.getElementById('viewToggle'); if(b){b.innerHTML=compact?'&#9783;':'&#9638;'; b.title=compact?'Vista tarjetas':'Vista compacta';}
 }
 </script>
 </body>
