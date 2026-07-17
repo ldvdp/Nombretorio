@@ -442,6 +442,22 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.t
 .nd-rel{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
 .nd-rel-a{font-size:.78rem;background:#fff;border:1px solid #ece0c8;border-radius:20px;padding:5px 12px;color:#7a4a3a;text-decoration:none;font-family:'Playfair Display',serif;transition:border-color .15s,color .15s}
 .nd-rel-a:hover{border-color:#d9a94a;color:#c0511a}
+.shm-btn.cmp{background:#4a3a63;color:#fff}
+.cmp-card{width:min(520px,95vw);text-align:center}
+.cmp-sec{margin-top:14px}
+.cmp-svg{width:100%;height:104px;display:block;background:#fff;border:1px solid #ece0c8;border-radius:10px}
+.cmp-yr{display:flex;justify-content:space-between;font-size:.6rem;color:#9a8f7c;margin-top:2px}
+.cmp-legend{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:8px}
+.cmp-leg{font-size:.74rem;color:#4a4236;display:flex;align-items:center;gap:5px;font-family:'Playfair Display',serif}
+.cmp-dot{display:inline-block;width:9px;height:9px;border-radius:50%;flex:0 0 auto}
+.cmp-tw{overflow-x:auto}
+.cmp-tbl{width:100%;border-collapse:collapse;font-size:.8rem}
+.cmp-tbl th{font-size:.62rem;letter-spacing:.04em;text-transform:uppercase;color:#9a8f7c;font-weight:600;padding:6px 8px;text-align:right;border-bottom:1px solid #ece0c8}
+.cmp-tbl th:first-child{text-align:left}
+.cmp-tbl td{padding:7px 8px;text-align:right;border-bottom:1px solid #f0e7d6;color:#4a4236;white-space:nowrap}
+.cmp-tbl td:first-child{text-align:left;display:flex;align-items:center;gap:7px}
+.cmp-nm{font-family:'Playfair Display',serif;font-weight:700;color:#2a2118}
+.cmp-note{font-size:.72rem;color:#9a8f7c;margin-top:10px}
 </style>
 </head>
 <body class="home">
@@ -690,6 +706,15 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.t
 
 
 <button class="fav-fab" id="favFab" onclick="openFavs()" aria-label="Ver mis nombres favoritos" style="display:none">&#9733; <span id="favFabN">0</span></button>
+<div id="compareModal" class="shm" onclick="closeCompare(event)">
+  <div class="shm-card cmp-card">
+    <button class="shm-x" onclick="closeCompare()" aria-label="Cerrar">&times;</button>
+    <div class="shm-cat">&#9878;&#65039; Comparativa</div>
+    <div class="fav-title">Comparar nombres</div>
+    <div id="cmpBody"></div>
+    <div class="shm-foot">nombretorio.vercel.app</div>
+  </div>
+</div>
 <div id="favModal" class="shm" onclick="closeFavs(event)">
   <div class="shm-card fav-card">
     <button class="shm-x" onclick="closeFavs()" aria-label="Cerrar">&times;</button>
@@ -697,6 +722,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.t
     <div class="fav-title">Mis nombres favoritos</div>
     <div class="fav-list" id="favList"></div>
     <div class="fav-acts">
+      <button id="favCmp" class="shm-btn cmp" onclick="openCompare()">&#9878;&#65039; Comparar</button>
       <a id="favWa" class="shm-btn wa" target="_blank" rel="noopener">&#128172; Compartir</a>
       <button class="shm-btn cp" onclick="favCopy()">&#128203; Copiar</button>
       <button class="shm-btn tg" onclick="favDownload()">&#11015;&#65039; Descargar</button>
@@ -1245,7 +1271,7 @@ function shmDeleg(id,sel,fn){ var el=document.getElementById(id); if(el) el.addE
 shmDeleg('specGrid','.sc',function(c){ openShare((c.querySelector('.sc-n')||{}).innerHTML,(c.querySelector('.sc-cat')||{}).innerHTML,(c.querySelector('.sc-d')||{}).innerHTML); });
 shmDeleg('gPanel','.grow',function(c){ var n=c.querySelector('.grow-n'); var nm=n&&n.childNodes[0]?n.childNodes[0].textContent:''; openShare(nm,(c.querySelector('.grow-c')||{}).innerHTML,(c.querySelector('.grow-d')||{}).innerHTML); });
 shmDeleg('mapPanel','.mp-row',function(c){ var nm=(c.querySelector('.mp-nm')||{}).textContent||''; var rt=(c.querySelector('.mp-rt')||{}).textContent||''; var prov=(document.querySelector('#mapPanel .mp-ph strong')||{}).textContent||''; openShare(nm,'&#128205; '+prov,'De los nombres más frecuentes en '+prov+(rt?' ('+rt+')':'')+'.'); });
-document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ ['shareModal','favModal','statsModal','cookieModal'].forEach(function(id){var m=document.getElementById(id); if(m)m.style.display='none';}); try{_clearHash('stats');_clearHash('cookies');}catch(e2){} } });
+document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ ['shareModal','favModal','statsModal','cookieModal','compareModal'].forEach(function(id){var m=document.getElementById(id); if(m)m.style.display='none';}); try{_clearHash('stats');_clearHash('cookies');}catch(e2){} } });
 
 (function(){var el=document.getElementById('visitCount'),w=document.getElementById('visitWrap');if(!el)return;var isNew=!sessionStorage.getItem('nbt_v');fetch(isNew?'/api/visit':'/api/stats').then(function(r){return r.json();}).then(function(d){if(d&&d.configured&&typeof d.total==='number'){el.textContent=Number(d.total).toLocaleString('es-ES');window.__visitTotal=Number(d.total);if(w)w.style.display='';try{var sm=document.getElementById('statsModal');if(sm&&sm.style.display==='flex'&&typeof renderStats==='function')renderStats();}catch(e){}}else if(w){w.style.display='none';}if(isNew){try{sessionStorage.setItem('nbt_v','1');}catch(e){}}}).catch(function(){if(w)w.style.display='none';});})();
 
@@ -1330,6 +1356,7 @@ function renderFavPanel(){
   if(fab){var nn=document.getElementById('favFabN'); if(nn)nn.textContent=n; fab.style.display=n?'flex':'none';}
   var list=document.getElementById('favList'); if(!list)return;
   var acts=document.querySelector('.fav-acts'), clr=document.querySelector('.fav-clear');
+  var cmp=document.getElementById('favCmp'); if(cmp)cmp.style.display=(n>=2)?'':'none';
   if(!n){ list.innerHTML='<div class="fav-empty">A&uacute;n no has guardado nombres.<br>Toca la <b>estrella</b> de cualquier nombre para a&ntilde;adirlo aqu&iacute;.</div>';
     if(acts)acts.style.display='none'; if(clr)clr.style.display='none'; return; }
   if(acts)acts.style.display=''; if(clr)clr.style.display='';
@@ -1377,7 +1404,7 @@ function _applyHash(){var raw=(location.hash||'').slice(1), h=raw.toLowerCase();
 /* evita reabrir/reescribir el hash si ya esta abierto ese mismo nombre */
 function _shmOpenFor(nm){var s=document.getElementById('shareModal');
   return !!(s&&s.style.display==='flex'&&window._shmName&&_dkey(window._shmName)===_dkey(nm));}
-(function(){var b=document.body;['shareModal','favModal','statsModal','cookieModal'].forEach(function(id){var m=document.getElementById(id);if(m&&m.parentElement!==b)b.appendChild(m);});})();
+(function(){var b=document.body;['shareModal','favModal','statsModal','cookieModal','compareModal'].forEach(function(id){var m=document.getElementById(id);if(m&&m.parentElement!==b)b.appendChild(m);});})();
 
 /* Rutas por nombre: /nombre/<slug>. El servidor (api/name.js) sirve esa ruta con
    sus propias meta tags y deja el nombre en window.__NAME__. Aqui solo hay que
@@ -1466,7 +1493,7 @@ function renderStats(){
    del scroll de fondo. Se observa el atributo style porque el display se cambia
    desde muchos sitios: funciones open/close, Escape y el router de hash. */
 (function(){
-  var MODALS={shareModal:null,favModal:'Mis nombres favoritos',statsModal:'Estadísticas de visitas',cookieModal:'Cookies y privacidad'};
+  var MODALS={shareModal:null,favModal:'Mis nombres favoritos',statsModal:'Estadísticas de visitas',cookieModal:'Cookies y privacidad',compareModal:'Comparar nombres'};
   var openId=null, lastTrigger=null, prevOverflow='';
   function focusables(m){
     return [].slice.call(m.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled])'))
@@ -1527,6 +1554,50 @@ function relatedNames(nm,g){
   return out;
 }
 function _relClick(ev,nm){if(ev&&ev.preventDefault)ev.preventDefault();try{openShare(nm);}catch(e){}return false;}
+
+var CMP_COLORS=['#c9922f','#2f7fc9','#c94f7f','#3fa06a','#8a5fc9','#c9682f'];
+function openCompare(){ if(favs.length<2){return;} renderCompare(); document.getElementById('compareModal').style.display='flex'; }
+function closeCompare(ev){ if(ev&&ev.target!==ev.currentTarget&&!(ev.target.classList&&ev.target.classList.contains('shm-x')))return; var m=document.getElementById('compareModal'); if(m)m.style.display='none'; }
+function cmpOverlay(items){
+  var W=300,H=104,n=21,pad=4;
+  var gmax=1; items.forEach(function(it){var m=Math.max.apply(null,it.d.years); if(m>gmax)gmax=m;});
+  var lines=items.map(function(it,i){
+    var col=CMP_COLORS[i%CMP_COLORS.length];
+    var pts=it.d.years.map(function(v,j){var x=(j/(n-1))*W;var y=H-pad-(v/gmax)*(H-pad*2-2);return x.toFixed(1)+','+y.toFixed(1);}).join(' ');
+    return '<polyline points="'+pts+'" fill="none" stroke="'+col+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+  }).join('');
+  var leg=items.map(function(it,i){var col=CMP_COLORS[i%CMP_COLORS.length];
+    return '<span class="cmp-leg"><span class="cmp-dot" style="background:'+col+'"></span>'+it.name+'</span>';}).join('');
+  return '<div class="nd-h">Evoluci&oacute;n 2003&ndash;2023</div>'+
+    '<svg class="cmp-svg" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">'+lines+'</svg>'+
+    '<div class="cmp-yr"><span>2003</span><span>2023</span></div>'+
+    '<div class="cmp-legend">'+leg+'</div>';
+}
+function renderCompare(){
+  var body=document.getElementById('cmpBody'); if(!body)return;
+  var sel=favs.slice(0,6);
+  var data=sel.map(function(f){var d;try{d=nameDetail(f.n);}catch(e){d={cards:[]};} return {name:disp(f.n),g:(d.gender||f.g),d:d};});
+  var h='';
+  var withY=data.filter(function(x){return x.d&&x.d.years;});
+  if(withY.length>=1) h+='<div class="cmp-sec">'+cmpOverlay(withY)+'</div>';
+  // tabla comparativa
+  var rows=data.map(function(x,i){
+    var d=x.d||{}, col=CMP_COLORS[i%CMP_COLORS.length];
+    var gi=x.g==='n'?'&#9794;':x.g==='f'?'&#9792;':x.g==='u'?'&#9895;':'&middot;';
+    return '<tr>'+
+      '<td><span class="cmp-dot" style="background:'+col+'"></span><span class="cmp-nm">'+x.name+'</span></td>'+
+      '<td>'+gi+'</td>'+
+      '<td>'+(d.rank!=null?'#'+d.rank:'&mdash;')+'</td>'+
+      '<td>'+(d.people!=null?fmt(d.people):'&mdash;')+'</td>'+
+      '<td>'+(d.births!=null?fmt(d.births):'&mdash;')+'</td>'+
+    '</tr>';
+  }).join('');
+  h+='<div class="cmp-sec"><div class="nd-h">Datos</div><div class="cmp-tw"><table class="cmp-tbl">'+
+     '<thead><tr><th>Nombre</th><th></th><th>Rango</th><th>Personas</th><th>Nacim.</th></tr></thead>'+
+     '<tbody>'+rows+'</tbody></table></div></div>';
+  if(favs.length>6) h+='<div class="cmp-note">Se comparan los 6 primeros de tu lista.</div>';
+  body.innerHTML=h;
+}
 </script>
 </body>
 </html>
