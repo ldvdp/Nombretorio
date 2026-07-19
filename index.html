@@ -512,7 +512,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.t
       <button class="hme" onclick="goApp('s1')"><span class="hme-i">&#128200;</span><span class="hme-t">Tendencias</span><span class="hme-s">Los nombres m&aacute;s puestos, en Espa&ntilde;a y 6 pa&iacute;ses m&aacute;s</span></button>
       <button class="hme" onclick="goApp('s6')"><span class="hme-i">&#128506;&#65039;</span><span class="hme-t">Mapa</span><span class="hme-s">Espa&ntilde;a en pergamino y el globo del mundo</span></button>
       <button class="hme" onclick="goApp('s4')"><span class="hme-i">&#10024;</span><span class="hme-t">Especiales</span><span class="hme-s">Prerromanos, del mundo, b&iacute;blicos&hellip;</span></button>
-      <button class="hme" onclick="goApp('s5')"><span class="hme-i">&#128290;</span><span class="hme-t">5.000 nombres</span><span class="hme-s">El ranking completo</span></button>
+      <button class="hme" onclick="goApp('s5')"><span class="hme-i">&#128290;</span><span class="hme-t">Ranking completo</span><span class="hme-s">Todos los nombres, del m&aacute;s com&uacute;n al m&aacute;s raro</span></button>
       <button class="hme" onclick="goApp('s2')"><span class="hme-i">&#128483;&#65039;</span><span class="hme-t">Lenguas</span><span class="hme-s">Nombres por lengua de Espa&ntilde;a</span></button>
       <button class="hme" onclick="goApp('s3')"><span class="hme-i">&#127760;</span><span class="hme-t">Multiling&uuml;e</span><span class="hme-s">El mismo nombre en varios idiomas</span></button>
     </div>
@@ -521,7 +521,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.t
 <div class="nav-w">
   <div class="tabs">
     <button class="tab on" onclick="showSec(this,'s1')">Tendencias</button>
-    <button class="tab" onclick="showSec(this,'s5')">5.000 nombres</button>
+    <button class="tab" onclick="showSec(this,'s5')">Ranking completo</button>
     <button class="tab" onclick="showSec(this,'s2')">Lenguas</button>
     <button class="tab" onclick="showSec(this,'s3')">Multiling&uuml;e</button>
     <button class="tab" onclick="showSec(this,'s4')">Especiales</button>
@@ -591,7 +591,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.t
 <div class="sec" id="s5">
   <div class="ctrl">
     <div id="intro5" style="font-size:.82rem;color:var(--mu);margin-bottom:14px">
-      <strong>5.000 nombres</strong> del padr&oacute;n municipal de Espa&ntilde;a &middot; desde los m&aacute;s comunes hasta los rar&iacute;simos.
+      <strong>El ranking completo</strong> del padr&oacute;n municipal de Espa&ntilde;a &middot; desde los m&aacute;s comunes hasta los rar&iacute;simos.
     </div>
     <div style="position:relative;margin-bottom:12px">
       <svg style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--mu)" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -1653,7 +1653,7 @@ function _capply(code){
   var e=CDATA[code];
   _cswap(BB,e.data.BB);_cswap(BG,e.data.BG);_cswap(M5K,e.data.M5K);_cswap(W5K,e.data.W5K);
   activeCountry=code; Y0=e.meta.y0; YN=e.meta.yN||(e.meta.y0+20); CNAME=e.meta.name; CMETRIC=e.meta.metricLabel;
-  try{var _i5=document.getElementById('intro5'); if(_i5){var _es=(code==='es');_i5.innerHTML=_es?'<strong>5.000 nombres</strong> del padr&oacute;n municipal de Espa&ntilde;a &middot; desde los m&aacute;s comunes hasta los rar&iacute;simos.':'<strong>Nombres de '+CNAME+'</strong> por n&uacute;mero de nacimientos &middot; de los m&aacute;s comunes a los m&aacute;s raros.';}}catch(_e){}
+  try{var _i5=document.getElementById('intro5'); if(_i5){var _es=(code==='es');_i5.innerHTML=_es?'<strong>El ranking completo</strong> del padr&oacute;n municipal de Espa&ntilde;a &middot; desde los m&aacute;s comunes hasta los rar&iacute;simos.':'<strong>Nombres de '+CNAME+'</strong> por n&uacute;mero de nacimientos &middot; de los m&aacute;s comunes a los m&aacute;s raros.';}}catch(_e){}
   ['countrySel','countrySel5'].forEach(function(id){var s=document.getElementById(id);if(s)s.value=code;});
   try{if(typeof render==='function')render();}catch(e2){}
   try{if(typeof render5k==='function'){pg5k=0;render5k();}}catch(e2){}
