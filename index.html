@@ -474,6 +474,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.t
 #s2 .pills,#s3 .pills,#s4 .statline,#s4 .st,#s4 .subpills,#s4 .pills{justify-content:center}
 #s4 .spec-lead{text-align:center;justify-content:center}
 #s4 .spec-meta,#s4 #specMeta{text-align:center}
+.ctry-lbl{display:inline-flex;align-items:center;gap:4px;font-size:.72rem;font-weight:600;color:#b0872c;letter-spacing:.02em;padding:0 2px 0 4px;align-self:center}
+#countrySel,#countrySel5{border-color:rgba(201,168,76,.5);font-weight:600}
 </style>
 </head>
 <body class="home">
@@ -507,7 +509,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.t
     <div class="hero-tag">nombres de todo el mundo</div>
     <div class="hero-menu">
       <button class="hme hme-rnd" onclick="randomName()"><span class="hme-i">&#127922;</span><span class="hme-t">Sorpr&eacute;ndeme</span><span class="hme-s">Un nombre al azar para inspirarte</span></button>
-      <button class="hme" onclick="goApp('s1')"><span class="hme-i">&#128200;</span><span class="hme-t">Tendencias</span><span class="hme-s">Los nombres m&aacute;s puestos en Espa&ntilde;a</span></button>
+      <button class="hme" onclick="goApp('s1')"><span class="hme-i">&#128200;</span><span class="hme-t">Tendencias</span><span class="hme-s">Los nombres m&aacute;s puestos, en Espa&ntilde;a y 6 pa&iacute;ses m&aacute;s</span></button>
       <button class="hme" onclick="goApp('s6')"><span class="hme-i">&#128506;&#65039;</span><span class="hme-t">Mapa</span><span class="hme-s">Espa&ntilde;a en pergamino y el globo del mundo</span></button>
       <button class="hme" onclick="goApp('s4')"><span class="hme-i">&#10024;</span><span class="hme-t">Especiales</span><span class="hme-s">Prerromanos, del mundo, b&iacute;blicos&hellip;</span></button>
       <button class="hme" onclick="goApp('s5')"><span class="hme-i">&#128290;</span><span class="hme-t">5.000 nombres</span><span class="hme-s">El ranking completo</span></button>
@@ -533,7 +535,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.t
 <div class="sec on" id="s1">
   <div class="ctrl">
     <div class="row">
-      <select id="countrySel" onchange="setCountry(this.value)" title="Pa&iacute;s de los datos" aria-label="Pa&iacute;s"><option value="es">&#127466;&#127480; Espa&ntilde;a</option><option value="us">&#127482;&#127480; EE. UU.</option><option value="fr">&#127467;&#127479; Francia</option><option value="uk">&#127468;&#127463; R. Unido</option><option value="ie">&#127470;&#127466; Irlanda</option><option value="no">&#127475;&#127476; Noruega</option><option value="pl">&#127477;&#127473; Polonia</option></select>
+      <span class="ctry-lbl">&#127758; Pa&iacute;s</span><select id="countrySel" onchange="setCountry(this.value)" title="Pa&iacute;s de los datos" aria-label="Pa&iacute;s"><option value="es">&#127466;&#127480; Espa&ntilde;a</option><option value="us">&#127482;&#127480; EE. UU.</option><option value="fr">&#127467;&#127479; Francia</option><option value="uk">&#127468;&#127463; R. Unido</option><option value="ie">&#127470;&#127466; Irlanda</option><option value="no">&#127475;&#127476; Noruega</option><option value="pl">&#127477;&#127473; Polonia</option></select>
       <div class="sw">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         <input type="text" id="qi" placeholder="Buscar nombre..." oninput="render()">
@@ -588,8 +590,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.t
 <!-- S5: FULL 5K CENSUS -->
 <div class="sec" id="s5">
   <div class="ctrl">
-    <div style="font-size:.82rem;color:var(--mu);margin-bottom:14px">
-      <strong>5.000 nombres</strong> del padr&oacute;n municipal de Espa&ntilde;a &middot; desde los m&aacute;s comunes hasta los rar&iacute;simos con menos de 200 personas.
+    <div id="intro5" style="font-size:.82rem;color:var(--mu);margin-bottom:14px">
+      <strong>5.000 nombres</strong> del padr&oacute;n municipal de Espa&ntilde;a &middot; desde los m&aacute;s comunes hasta los rar&iacute;simos.
     </div>
     <div style="position:relative;margin-bottom:12px">
       <svg style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--mu)" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -619,7 +621,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.t
       </div>
     </div>
     <div class="row">
-      <select id="countrySel5" onchange="setCountry(this.value)" title="Pa&iacute;s de los datos" aria-label="Pa&iacute;s"><option value="es">&#127466;&#127480; Espa&ntilde;a</option><option value="us">&#127482;&#127480; EE. UU.</option><option value="fr">&#127467;&#127479; Francia</option><option value="uk">&#127468;&#127463; R. Unido</option><option value="ie">&#127470;&#127466; Irlanda</option><option value="no">&#127475;&#127476; Noruega</option><option value="pl">&#127477;&#127473; Polonia</option></select>
+      <span class="ctry-lbl">&#127758; Pa&iacute;s</span><select id="countrySel5" onchange="setCountry(this.value)" title="Pa&iacute;s de los datos" aria-label="Pa&iacute;s"><option value="es">&#127466;&#127480; Espa&ntilde;a</option><option value="us">&#127482;&#127480; EE. UU.</option><option value="fr">&#127467;&#127479; Francia</option><option value="uk">&#127468;&#127463; R. Unido</option><option value="ie">&#127470;&#127466; Irlanda</option><option value="no">&#127475;&#127476; Noruega</option><option value="pl">&#127477;&#127473; Polonia</option></select>
       <select id="sort5" onchange="pg5k=0;render5k()">
         <option value="rank">M&aacute;s populares primero</option>
         <option value="az">A - Z</option>
@@ -778,7 +780,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.t
     <span class="ftr-dot">&middot;</span>
     <a href="https://github.com/ldvdp/Nombretorio" target="_blank" rel="noopener">C&oacute;digo en GitHub</a>
     <span class="ftr-dot">&middot;</span>
-    <span>Datos: INE &middot; INSEE &middot; Istat</span>
+    <span>Datos oficiales: INE &middot; SSA &middot; INSEE &middot; ONS &middot; CSO &middot; SSB &middot; dane.gov.pl</span>
     <span class="ftr-dot">&middot;</span>
     <button class="ftr-link" onclick="openCookies()">Cookies</button>
   </div>
@@ -1274,7 +1276,7 @@ function openShare(name,cat,desc){
   document.getElementById('shmName').textContent=nm;
   document.getElementById('shmCat').innerHTML=cat||'';
   document.getElementById('shmDesc').textContent=dd;
-  var url='https://nombretorio.vercel.app/nombre/'+_nameSlug(nm);
+  var url=(activeCountry==='es')?('https://nombretorio.vercel.app/nombre/'+_nameSlug(nm)):'https://nombretorio.vercel.app/';
   var txt='✨ '+nm+(dd?' — '+dd:'')+'\n\nDescubre más nombres en '+url;
   window._shmTxt=txt; window._shmName=nm;
   var e=encodeURIComponent(txt);
@@ -1284,7 +1286,7 @@ function openShare(name,cat,desc){
   document.getElementById('shmNative').style.display=navigator.share?'block':'none';
   try{renderNameDetail(nm);}catch(e){document.getElementById('shmDetail').innerHTML='';}
   document.getElementById('shareModal').style.display='flex';
-  try{_setNamePath(nm);}catch(e){}
+  try{if(activeCountry==='es')_setNamePath(nm);}catch(e){}
 }
 function _clearNameHash(){try{if((location.hash||'').slice(1).toLowerCase().indexOf('nombre/')===0){if(history.pushState)history.pushState(null,'',location.pathname+location.search);else location.hash='';}}catch(e){}}
 function closeShare(ev){ if(!ev || ev.target.id==='shareModal' || (''+ (ev.target.className||'')).indexOf('shm-x')>=0){ document.getElementById('shareModal').style.display='none'; _clearNameHash(); _clearNamePath(); } }
@@ -1651,6 +1653,7 @@ function _capply(code){
   var e=CDATA[code];
   _cswap(BB,e.data.BB);_cswap(BG,e.data.BG);_cswap(M5K,e.data.M5K);_cswap(W5K,e.data.W5K);
   activeCountry=code; Y0=e.meta.y0; YN=e.meta.yN||(e.meta.y0+20); CNAME=e.meta.name; CMETRIC=e.meta.metricLabel;
+  try{var _i5=document.getElementById('intro5'); if(_i5){var _es=(code==='es');_i5.innerHTML=_es?'<strong>5.000 nombres</strong> del padr&oacute;n municipal de Espa&ntilde;a &middot; desde los m&aacute;s comunes hasta los rar&iacute;simos.':'<strong>Nombres de '+CNAME+'</strong> por n&uacute;mero de nacimientos &middot; de los m&aacute;s comunes a los m&aacute;s raros.';}}catch(_e){}
   ['countrySel','countrySel5'].forEach(function(id){var s=document.getElementById(id);if(s)s.value=code;});
   try{if(typeof render==='function')render();}catch(e2){}
   try{if(typeof render5k==='function'){pg5k=0;render5k();}}catch(e2){}
