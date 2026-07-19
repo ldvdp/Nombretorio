@@ -533,7 +533,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.t
 <div class="sec on" id="s1">
   <div class="ctrl">
     <div class="row">
-      <select id="countrySel" onchange="setCountry(this.value)" title="Pa&iacute;s de los datos" aria-label="Pa&iacute;s"><option value="es">&#127466;&#127480; Espa&ntilde;a</option><option value="us">&#127482;&#127480; EE. UU.</option><option value="fr">&#127467;&#127479; Francia</option><option value="uk">&#127468;&#127463; R. Unido</option><option value="ie">&#127470;&#127466; Irlanda</option><option value="no">&#127475;&#127476; Noruega</option></select>
+      <select id="countrySel" onchange="setCountry(this.value)" title="Pa&iacute;s de los datos" aria-label="Pa&iacute;s"><option value="es">&#127466;&#127480; Espa&ntilde;a</option><option value="us">&#127482;&#127480; EE. UU.</option><option value="fr">&#127467;&#127479; Francia</option><option value="uk">&#127468;&#127463; R. Unido</option><option value="ie">&#127470;&#127466; Irlanda</option><option value="no">&#127475;&#127476; Noruega</option><option value="pl">&#127477;&#127473; Polonia</option></select>
       <div class="sw">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         <input type="text" id="qi" placeholder="Buscar nombre..." oninput="render()">
@@ -619,7 +619,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.t
       </div>
     </div>
     <div class="row">
-      <select id="countrySel5" onchange="setCountry(this.value)" title="Pa&iacute;s de los datos" aria-label="Pa&iacute;s"><option value="es">&#127466;&#127480; Espa&ntilde;a</option><option value="us">&#127482;&#127480; EE. UU.</option><option value="fr">&#127467;&#127479; Francia</option><option value="uk">&#127468;&#127463; R. Unido</option><option value="ie">&#127470;&#127466; Irlanda</option><option value="no">&#127475;&#127476; Noruega</option></select>
+      <select id="countrySel5" onchange="setCountry(this.value)" title="Pa&iacute;s de los datos" aria-label="Pa&iacute;s"><option value="es">&#127466;&#127480; Espa&ntilde;a</option><option value="us">&#127482;&#127480; EE. UU.</option><option value="fr">&#127467;&#127479; Francia</option><option value="uk">&#127468;&#127463; R. Unido</option><option value="ie">&#127470;&#127466; Irlanda</option><option value="no">&#127475;&#127476; Noruega</option><option value="pl">&#127477;&#127473; Polonia</option></select>
       <select id="sort5" onchange="pg5k=0;render5k()">
         <option value="rank">M&aacute;s populares primero</option>
         <option value="az">A - Z</option>
@@ -821,7 +821,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.t
 <script>
 
 const YEARS=Array.from({length:21},(_,i)=>2003+i);
-var Y0=2003,CNAME='España',CMETRIC='personas en España',activeCountry='es';
+var Y0=2003,YN=2023,CNAME='España',CMETRIC='personas en España',activeCountry='es';
 
 /* Los datos del INE vienen sin tildes ("Lucia", "Jose"). Acentuamos SOLO al mostrar:
    los datos y las claves de busqueda siguen intactos. Mapa por palabra, asi los
@@ -934,8 +934,8 @@ function render(){
   else if(sort==='rare')pool.sort((a,b2)=>a.t-b2.t);
   else if(sort==='az')pool.sort((a,b2)=>a.n.localeCompare(b2.n,'es'));
   else if(sort==='za')pool.sort((a,b2)=>b2.n.localeCompare(a.n,'es'));
-  else if(sort==='rise')pool.sort((a,b2)=>(b2.y[20]-b2.y[16])-(a.y[20]-a.y[16]));
-  else if(sort==='fall')pool.sort((a,b2)=>(b2.y[9]-b2.y[20])-(a.y[9]-a.y[20]));
+  else if(sort==='rise'){const e=YN-Y0;pool.sort((a,b2)=>(b2.y[e]-b2.y[e-4])-(a.y[e]-a.y[e-4]));}
+  else if(sort==='fall'){const e=YN-Y0;pool.sort((a,b2)=>(b2.y[e-11]-b2.y[e])-(a.y[e-11]-a.y[e]));}
 
   const shown=pool.slice(0,lim);
   try{var _cmp=localStorage.getItem('nbt_view')==='compact';var _ng=document.getElementById('ng'); if(_ng)_ng.classList.toggle('compact',_cmp);var _vb=document.getElementById('viewToggle'); if(_vb){_vb.innerHTML=_cmp?'&#9783;':'&#9638;';_vb.title=_cmp?'Vista tarjetas':'Vista compacta';}}catch(e){}
@@ -954,7 +954,7 @@ function render(){
     const fav=isFav(item.n);
     const col=item._g==='n'?'#A8C5DA':'#E8B4B8';
     const cls=fav?(item._g==='n'?'fn':'ff'):'';
-    const d23=item.y[20],d19=item.y[16],d12=item.y[9];
+    const _e=YN-Y0,d23=item.y[_e],d19=item.y[_e-4],d12=item.y[_e-11];
     let tTag='';
     if(d19>0&&d23>d19*1.15)tTag=`<span class="tt t-up">&#8593; +${fmt(d23-d19)}</span>`;
     else if(d12>0&&d23<d12*0.7)tTag=`<span class="tt t-dn">&#8595; -${fmt(d12-d23)}</span>`;
@@ -964,9 +964,9 @@ function render(){
       <span class="gd2 ${item._g==='n'?'gn':'gf'}"></span>
       <div class="nom">${disp(item.n)}</div>
       <div class="spk"><canvas style="width:100%;display:block" data-c="${col}" data-v="${item.y.join(',')}"></canvas></div>
-      <div class="mt2">${tTag||''}<span class="fr">${d23>0?fmt(d23)+' en '+(Y0+20):d19>0?fmt(d19)+' en '+(Y0+16):''}</span></div>
+      <div class="mt2">${tTag||''}<span class="fr">${d23>0?fmt(d23)+' en '+YN:d19>0?fmt(d19)+' en '+(YN-4):''}</span></div>
       <span class="fs">${fav?'&#10024;':'&#10025;'}</span>
-      <button class="nc-share" title="Compartir" aria-label="Compartir nombre" onclick="event.stopPropagation();openShare('${item.n.replace(/'/g,"\\'")}','','${d23>0?fmt(d23)+' nacimientos en '+(Y0+20):'uno de los m&aacute;s puestos en '+CNAME}')">&#128279;</button>
+      <button class="nc-share" title="Compartir" aria-label="Compartir nombre" onclick="event.stopPropagation();openShare('${item.n.replace(/'/g,"\\'")}','','${d23>0?fmt(d23)+' nacimientos en '+YN:'uno de los m&aacute;s puestos en '+CNAME}')">&#128279;</button>
     </div>`;
   }).join('');
 
@@ -1350,7 +1350,7 @@ function nameDetail(nm){
 function ndChart(y){
   var w=250,h=54,n=y.length,mx=Math.max.apply(null,y),mn=Math.min.apply(null,y),rng=(mx-mn)||1;
   var pts=y.map(function(v,i){var px=(i/(n-1))*w,py=h-4-((v-mn)/rng)*(h-12);return px.toFixed(1)+','+py.toFixed(1);});
-  return '<svg class="nd-spark" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none"><defs><linearGradient id="ndg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c9a84c" stop-opacity=".34"/><stop offset="1" stop-color="#c9a84c" stop-opacity="0"/></linearGradient></defs><polygon points="0,'+h+' '+pts.join(' ')+' '+w+','+h+'" fill="url(#ndg)"/><polyline points="'+pts.join(' ')+'" fill="none" stroke="#c9a84c" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg><div class="nd-yr"><span>'+Y0+'</span><span>pico '+(y.indexOf(mx)+Y0)+'</span><span>'+(Y0+20)+'</span></div>';
+  return '<svg class="nd-spark" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none"><defs><linearGradient id="ndg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c9a84c" stop-opacity=".34"/><stop offset="1" stop-color="#c9a84c" stop-opacity="0"/></linearGradient></defs><polygon points="0,'+h+' '+pts.join(' ')+' '+w+','+h+'" fill="url(#ndg)"/><polyline points="'+pts.join(' ')+'" fill="none" stroke="#c9a84c" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg><div class="nd-yr"><span>'+Y0+'</span><span>pico '+(y.indexOf(mx)+Y0)+'</span><span>'+YN+'</span></div>';
 }
 function renderNameDetail(nm){
   var el=document.getElementById('shmDetail'); if(!el)return; el.innerHTML='';
@@ -1361,8 +1361,8 @@ function renderNameDetail(nm){
   if(d.rank!=null) st.push('<div class="nd-stat"><span class="nd-k">#'+d.rank+'</span><span class="nd-l">ranking '+CNAME+'</span></div>');
   if(d.people!=null) st.push('<div class="nd-stat"><span class="nd-k">'+fmt(d.people)+'</span><span class="nd-l">'+CMETRIC+'</span></div>');
   if(st.length) h+='<div class="nd-stats">'+st.join('')+'</div>';
-  if(d.years) h+='<div class="nd-sec"><div class="nd-h">Evoluci&oacute;n '+Y0+'&ndash;'+(Y0+20)+'</div>'+ndChart(d.years)+
-    (d.births!=null?'<div class="nd-cap">'+fmt(d.births)+' nacimientos entre '+Y0+' y '+(Y0+20)+'</div>':'')+'</div>';
+  if(d.years) h+='<div class="nd-sec"><div class="nd-h">Evoluci&oacute;n '+Y0+'&ndash;'+YN+'</div>'+ndChart(d.years)+
+    (d.births!=null?'<div class="nd-cap">'+fmt(d.births)+' nacimientos entre '+Y0+' y '+YN+'</div>':'')+'</div>';
   if(d.cards.length){var seen={},cc=d.cards.filter(function(c){if(seen[c.d])return false;seen[c.d]=1;return true;}).slice(0,3);
     h+='<div class="nd-sec"><div class="nd-h">Significado y origen</div>'+cc.map(function(c){return '<div class="nd-mean"><span class="nd-cat">'+c.cat+'</span> '+c.d+'</div>';}).join('')+'</div>';}
   if(d.trans){var ks=Object.keys(d.trans).slice(0,8);
@@ -1591,9 +1591,9 @@ function cmpOverlay(items){
   }).join('');
   var leg=items.map(function(it,i){var col=CMP_COLORS[i%CMP_COLORS.length];
     return '<span class="cmp-leg"><span class="cmp-dot" style="background:'+col+'"></span>'+it.name+'</span>';}).join('');
-  return '<div class="nd-h">Evoluci&oacute;n '+Y0+'&ndash;'+(Y0+20)+'</div>'+
+  return '<div class="nd-h">Evoluci&oacute;n '+Y0+'&ndash;'+YN+'</div>'+
     '<svg class="cmp-svg" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">'+lines+'</svg>'+
-    '<div class="cmp-yr"><span>'+Y0+'</span><span>'+(Y0+20)+'</span></div>'+
+    '<div class="cmp-yr"><span>'+Y0+'</span><span>'+YN+'</span></div>'+
     '<div class="cmp-legend">'+leg+'</div>';
 }
 function renderCompare(){
@@ -1645,12 +1645,12 @@ function toggleView(){
    los nuevos datos). No se persiste: cada carga arranca en Espana, para que las
    paginas /nombre/ (que son de Espana en el servidor) no entren en conflicto. */
 var CDATA={es:{data:{BB:BB.slice(),BG:BG.slice(),M5K:M5K.slice(),W5K:W5K.slice()},
-  meta:{code:'es',y0:2003,name:'España',metricLabel:'personas en España'}}};
+  meta:{code:'es',y0:2003,yN:2023,name:'España',metricLabel:'personas en España'}}};
 function _cswap(arr,src){arr.length=0;Array.prototype.push.apply(arr,src);}
 function _capply(code){
   var e=CDATA[code];
   _cswap(BB,e.data.BB);_cswap(BG,e.data.BG);_cswap(M5K,e.data.M5K);_cswap(W5K,e.data.W5K);
-  activeCountry=code; Y0=e.meta.y0; CNAME=e.meta.name; CMETRIC=e.meta.metricLabel;
+  activeCountry=code; Y0=e.meta.y0; YN=e.meta.yN||(e.meta.y0+20); CNAME=e.meta.name; CMETRIC=e.meta.metricLabel;
   ['countrySel','countrySel5'].forEach(function(id){var s=document.getElementById(id);if(s)s.value=code;});
   try{if(typeof render==='function')render();}catch(e2){}
   try{if(typeof render5k==='function'){pg5k=0;render5k();}}catch(e2){}
