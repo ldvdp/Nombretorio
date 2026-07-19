@@ -36,7 +36,7 @@ body{background:radial-gradient(85% 55% at 50% -8%,rgba(47,108,158,.05),transpar
 .hero p{font-size:.96rem;color:rgba(250,247,242,.78);position:relative;max-width:640px;margin:0 auto;line-height:1.55}
 .nav-w{display:flex;justify-content:center;padding:0 14px;margin:-34px auto 12px;position:relative;z-index:20;max-width:980px}
 .tabs{display:flex;width:100%;flex-wrap:wrap;justify-content:center;gap:10px;padding:10px;border:1px solid rgba(28,28,28,.08);border-radius:28px;background:rgba(255,255,255,.78);backdrop-filter:blur(14px);box-shadow:0 18px 40px rgba(28,28,28,.12)}
-.tab{flex:0 1 auto;min-width:150px;padding:11px 18px;border:1px solid rgba(28,28,28,.08);background:rgba(255,255,255,.72);color:#5d564f;font-family:"DM Sans",sans-serif;font-size:.84rem;font-weight:500;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,background .18s ease,color .18s ease,border-color .18s ease;white-space:nowrap;border-radius:18px;letter-spacing:.01em}
+.tab{flex:0 1 auto;min-width:150px;padding:11px 18px;border:1px solid rgba(28,28,28,.08);background:rgba(255,255,255,.72);color:#5a5a66;font-family:"DM Sans",sans-serif;font-size:.84rem;font-weight:500;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,background .18s ease,color .18s ease,border-color .18s ease;white-space:nowrap;border-radius:18px;letter-spacing:.01em}
 .tab:hover{background:#fff;color:var(--ink);border-color:rgba(28,28,28,.14);transform:translateY(-1px);box-shadow:0 8px 20px rgba(28,28,28,.08)}
 .tab.on{background:var(--ink);color:var(--cr);border-color:var(--ink);box-shadow:0 12px 24px rgba(28,28,28,.2)}
 .main{max-width:980px;margin:0 auto;padding:0 12px 60px}
@@ -61,14 +61,14 @@ select:focus{border-color:var(--gd)}
 .sp strong{color:var(--ink)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:9px;margin-top:13px}
 .nc{background:var(--ca);border-radius:13px;padding:15px;border:2px solid transparent;cursor:pointer;transition:all .18s;position:relative}
-.nc:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.09)}
+.nc:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(30,40,70,.1);border-color:rgba(201,168,76,.4)}
 .nc.fn{border-color:var(--sk);background:#F2F8FB}
 .nc.ff{border-color:var(--bl);background:#FDF6F7}
 .rb{position:absolute;top:9px;right:9px;font-size:.62rem;font-weight:500;color:var(--mu);background:var(--cr);border-radius:14px;padding:2px 6px}
 .gd2{width:6px;height:6px;border-radius:50%;margin-bottom:6px;display:inline-block}
 .gn{background:var(--sk)}.gf{background:var(--bl)}
 .nom{font-family:"Playfair Display",serif;font-size:1.2rem;font-weight:700;line-height:1.15;margin-bottom:4px}
-.spk{height:28px;margin:4px 0}
+.spk{height:38px;margin:7px 0 5px}
 .mt2{font-size:.7rem;color:var(--mu);display:flex;justify-content:space-between;align-items:center}
 .fr{font-weight:500;color:var(--ink);font-size:.74rem}
 .tt{font-size:.6rem;padding:2px 5px;border-radius:6px;font-weight:500}
@@ -77,7 +77,7 @@ select:focus{border-color:var(--gd)}
 .nc:hover .fs{opacity:.5}
 .nc.fn .fs,.nc.ff .fs{opacity:1}
 .no-r{text-align:center;padding:40px 20px;color:var(--mu);grid-column:1/-1}
-.fav-row{background:#FFF9F0;border:1.5px solid #F0E6CC;border-radius:11px;padding:10px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-height:46px;margin-top:10px}
+.fav-row{background:#F8F8FB;border:1.5px solid #E6E6E1;border-radius:11px;padding:10px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-height:46px;margin-top:10px}
 .fl{font-size:.68rem;font-weight:500;color:var(--gd);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
 .fc{display:flex;flex-wrap:wrap;gap:4px;flex:1}
 .chip{display:flex;align-items:center;gap:3px;background:var(--ca);border:1.5px solid var(--bo);border-radius:14px;padding:3px 7px 3px 9px;font-size:.76rem;font-weight:500}
@@ -496,6 +496,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.t
 .greg-per{font-size:.66rem;color:#a7a4c8;margin-left:auto;font-weight:400;white-space:nowrap}
 .greg.ghist.on .greg-per{color:#5a4a12}
 .gph-per{color:#e2b658;font-weight:600}
+select{appearance:none;-webkit-appearance:none;-moz-appearance:none;background-color:#fff;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236C6A72' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px;transition:border-color .16s,box-shadow .16s}
+select:hover{border-color:var(--gd)}
+select:focus-visible{border-color:var(--gd);outline:2px solid var(--gd);outline-offset:1px}
 </style>
 </head>
 <body class="home">
@@ -934,13 +937,20 @@ function renderFavs(){
 }
 
 function drawSpark(cv,data,color){
-  const w=cv.width=cv.offsetWidth||180,h=cv.height=26;
-  const ctx=cv.getContext('2d'),mx=Math.max(...data,1);
-  ctx.clearRect(0,0,w,h);
-  ctx.strokeStyle=color;ctx.lineWidth=1.6;ctx.beginPath();
-  data.forEach((v,i)=>{const x=i/(data.length-1)*(w-4)+2,y=h-2-v/mx*(h-4);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
-  ctx.stroke();
-  ctx.lineTo(w-2,h-2);ctx.lineTo(2,h-2);ctx.closePath();ctx.fillStyle=color+'20';ctx.fill();
+  const dpr=window.devicePixelRatio||1, w=cv.offsetWidth||180, h=38, pad=3;
+  cv.width=w*dpr; cv.height=h*dpr; cv.style.height=h+'px';
+  const ctx=cv.getContext('2d'); ctx.scale(dpr,dpr);
+  const mx=Math.max(...data,1), mn=Math.min(...data,mx), rng=(mx-mn)||1;
+  const pts=data.map((v,i)=>[i/(data.length-1)*(w-pad*2)+pad, h-pad-((v-mn)/rng)*(h-pad*2)]);
+  const grad=ctx.createLinearGradient(0,0,0,h);
+  grad.addColorStop(0,color+'40'); grad.addColorStop(1,color+'00');
+  ctx.beginPath(); ctx.moveTo(pts[0][0],pts[0][1]);
+  for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);
+  ctx.lineTo(pts[pts.length-1][0],h); ctx.lineTo(pts[0][0],h); ctx.closePath();
+  ctx.fillStyle=grad; ctx.fill();
+  ctx.beginPath(); ctx.moveTo(pts[0][0],pts[0][1]);
+  for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);
+  ctx.strokeStyle=color; ctx.lineWidth=1.8; ctx.lineJoin='round'; ctx.lineCap='round'; ctx.stroke();
 }
 
 function render(){
