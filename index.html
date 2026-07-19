@@ -476,6 +476,26 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.t
 #s4 .spec-meta,#s4 #specMeta{text-align:center}
 .ctry-lbl{display:inline-flex;align-items:center;gap:4px;font-size:.72rem;font-weight:600;color:#b0872c;letter-spacing:.02em;padding:0 2px 0 4px;align-self:center}
 #countrySel,#countrySel5{border-color:rgba(201,168,76,.5);font-weight:600}
+.ghud-axis{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.gax{padding:6px 12px;border-radius:20px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05);color:#cfceea;font-size:.78rem;font-weight:600;cursor:pointer;transition:background .16s,color .16s,border-color .16s}
+.gax:hover{background:rgba(255,255,255,.11)}
+.gax.on{background:linear-gradient(150deg,#f6d885,#d9a94a);border-color:#c9a84c;color:#2a2410}
+.greg-search{width:100%;padding:8px 12px;margin-bottom:8px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#eee;font-size:.82rem;font-family:inherit}
+.greg-search::placeholder{color:#8b88b8}
+.greg-search:focus{outline:2px solid var(--gd);outline-offset:1px}
+.ghud-timeline{margin:2px 0 10px}
+.gtl-cap{display:block;font-size:.62rem;text-transform:uppercase;letter-spacing:1.2px;color:#8b88b8;font-weight:700;margin-bottom:6px}
+.gtl-row{display:flex;align-items:center;flex-wrap:wrap}
+.gtl-node{padding:5px 11px;border-radius:16px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05);color:#cfceea;font-size:.72rem;cursor:pointer;white-space:nowrap;transition:background .15s,color .15s}
+.gtl-node:hover{background:rgba(255,255,255,.11)}
+.gtl-node.on{background:#c9a84c;border-color:#c9a84c;color:#2a2410;font-weight:700}
+.gtl-line{width:14px;height:1px;background:rgba(255,255,255,.28);flex:0 0 auto}
+.greg-list{display:flex;flex-direction:column;gap:5px}
+.greg.ghist{display:flex;align-items:center;gap:8px;justify-content:flex-start;width:100%;text-align:left}
+.ghist-l{flex:0 0 auto}
+.greg-per{font-size:.66rem;color:#a7a4c8;margin-left:auto;font-weight:400;white-space:nowrap}
+.greg.ghist.on .greg-per{color:#5a4a12}
+.gph-per{color:#e2b658;font-weight:600}
 </style>
 </head>
 <body class="home">
@@ -719,7 +739,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.t
   <div class="globe-flex">
     <div class="globe-stage"><div id="globeViz"></div><div class="globe-hint">arrastra para girar &middot; rueda para zoom &middot; elige una regi&oacute;n</div></div>
     <div class="globe-hud">
-      <div class="ghud-regions" id="gRegions"></div>
+      <div class="ghud-axis" id="gAxisSel"><button class="gax on" data-ax="cont" onclick="gSetAxis('cont')">&#127757; Continentes</button><button class="gax" data-ax="hist" onclick="gSetAxis('hist')">&#127963;&#65039; Historia</button><button class="gax" data-ax="bib" onclick="gSetAxis('bib')">&#10013;&#65039; B&iacute;blico</button></div><input class="greg-search" id="gRegSearch" placeholder="Buscar regi&oacute;n&hellip;" oninput="gBuildRegions()"><div class="ghud-regions" id="gRegions"></div>
       <div class="ghud-panel" id="gPanel"><p class="gph-empty">Toca una regi&oacute;n del globo o de la lista para ver sus nombres.</p></div>
     </div>
   </div>
@@ -1234,11 +1254,30 @@ function gInit(){
   });
 }
 function gBuildRegions(){
-  var groups=[],seen={};GREG.forEach(function(r){if(!seen[r.g]){seen[r.g]=1;groups.push(r.g);}});
-  var html=groups.map(function(g){
-    var btns=GREG.map(function(r,i){return r.g===g?'<button class="greg'+(i===gSel?' on':'')+'"'+(i===gSel?' style="--gc:'+gRgb(r.c)+'"':'')+' onclick="gSelect('+i+')"><span class="gdot" style="color:'+gRgb(r.c)+'"></span>'+r.l+'</button>':'';}).join('');
-    return '<div class="greg-grp"><span class="greg-h">'+g+'</span><div class="greg-row">'+btns+'</div></div>';
-  }).join('');
+  var q=(typeof _tkey==='function')?_tkey((document.getElementById('gRegSearch')||{}).value||''):'';
+  var AX={cont:['América','África','Asia','Oceanía','Europa'],hist:['Historia'],bib:['Bíblico']};
+  var html='';
+  if(gAxis==='hist'){
+    html+=_gtimeline();
+    var hist=[];GREG.forEach(function(r,i){if(r.g==='Historia')hist.push({r:r,i:i,m:HIST_META[r.k]||{}});});
+    hist.sort(function(a2,b2){return (a2.m.ord||0)-(b2.m.ord||0);});
+    var any=false;
+    GEPOCHS.forEach(function(ep){
+      if(gEpoch!=='all'&&gEpoch!==ep[0])return;
+      var items=hist.filter(function(o){return o.m.e===ep[0]&&_gmatchQ(o.r,q);});
+      if(!items.length)return; any=true;
+      html+='<div class="greg-grp"><span class="greg-h">'+ep[1]+'</span><div class="greg-list">'+items.map(function(o){return _ghistBtn(o.r,o.i,o.m);}).join('')+'</div></div>';
+    });
+    if(!any)html+='<p class="gph-empty">Sin regiones para esta búsqueda.</p>';
+  }else{
+    var found=false;
+    (AX[gAxis]||AX.cont).forEach(function(g){
+      var items=[];GREG.forEach(function(r,i){if(r.g===g&&_gmatchQ(r,q))items.push({r:r,i:i});});
+      if(!items.length)return; found=true;
+      html+='<div class="greg-grp"><span class="greg-h">'+g+'</span><div class="greg-row">'+items.map(function(o){return _gregBtn(o.r,o.i);}).join('')+'</div></div>';
+    });
+    if(!found)html+='<p class="gph-empty">Sin regiones para esta búsqueda.</p>';
+  }
   document.getElementById('gRegions').innerHTML=html;
 }
 function gSelect(i){
@@ -1248,9 +1287,10 @@ function gSelect(i){
   gBuildRegions(); gShowNames(r);
 }
 function gShowNames(r){
-  var arr=gNames(r);
+  var arr=gNames(r); var m=HIST_META[r.k];
+  var per=m?' &middot; <span class="gph-per">'+m.p+'</span>':'';
   var rows=arr.slice(0,60).map(function(x){return '<div class="grow"><div class="grow-n">'+x.n+' <span class="grow-c">'+x.cat+'</span></div><div class="grow-d">'+x.d+'</div></div>';}).join('');
-  document.getElementById('gPanel').innerHTML='<div class="gph"><strong>'+r.l+'</strong><span>'+r.g+' &middot; '+(gSex==='n'?'niños':'niñas')+' &middot; '+arr.length+' nombres</span></div>'+(rows||'<p class="gph-empty">Sin nombres para esta vista.</p>');
+  document.getElementById('gPanel').innerHTML='<div class="gph"><strong>'+r.l+'</strong><span>'+r.g+per+' &middot; '+(gSex==='n'?'niños':'niñas')+' &middot; '+arr.length+' nombres</span></div>'+(rows||'<p class="gph-empty">Sin nombres para esta vista.</p>');
 }
 function gSetSex(s){gSex=s;document.querySelectorAll('#gSexPills .pill').forEach(function(b,i){b.className='pill'+(i===0&&s==='n'?' on-n':i===1&&s==='f'?' on-f':'');});if(gSel>=0)gShowNames(GREG[gSel]);}
 function gTexRefresh(){if(!GW)return;try{GW.scene().traverse(function(o){if(o.material&&o.material.map&&o.material.map.image&&/earth/.test(o.material.map.image.src||'')){o.material.map.needsUpdate=true;o.material.needsUpdate=true;}});}catch(e){}}
@@ -1672,6 +1712,39 @@ function setCountry(code){
     alert('No se pudieron cargar los datos de ese país. Inténtalo de nuevo.');
   });
 }
+
+var gAxis='cont', gEpoch='all';
+/* Periodos REALES de cada cultura histórica (hechos, no inventados). ord = año de
+   inicio aprox. para ordenar cronológicamente. e = época. */
+var HIST_META={
+  egipto:{p:'~3100–30 a.C.',e:'antiguedad',ord:-3100},
+  grecia:{p:'s. VIII–IV a.C.',e:'antiguedad',ord:-800},
+  persia:{p:'s. VI–IV a.C.',e:'antiguedad',ord:-550},
+  roma:{p:'s. VIII a.C.–V d.C.',e:'antiguedad',ord:-753},
+  oriente:{p:'Palmira · s. I–III d.C.',e:'antiguedad',ord:100},
+  ibero:{p:'s. VI–I a.C.',e:'prerromano',ord:-600},
+  celtico:{p:'s. VIII–I a.C.',e:'prerromano',ord:-800},
+  galo:{p:'s. V a.C.–I d.C.',e:'prerromano',ord:-500},
+  britano:{p:'s. IV a.C.–I d.C.',e:'prerromano',ord:-400},
+  dacio:{p:'s. II a.C.–II d.C.',e:'prerromano',ord:-200},
+  ilirio:{p:'s. VIII a.C.–I d.C.',e:'prerromano',ord:-800},
+  visigodo:{p:'s. V–VIII d.C.',e:'medieval',ord:400},
+  medieval:{p:'s. V–XV d.C.',e:'medieval',ord:500}
+};
+var GEPOCHS=[['antiguedad','Antigüedad'],['prerromano','Pueblos prerromanos'],['medieval','Edad Media']];
+function _gmatchQ(r,q){return !q || _tkey(r.l).indexOf(q)>=0;}
+function _gregBtn(r,i){return '<button class="greg'+(i===gSel?' on':'')+'"'+(i===gSel?' style="--gc:'+gRgb(r.c)+'"':'')+' onclick="gSelect('+i+')"><span class="gdot" style="color:'+gRgb(r.c)+'"></span>'+r.l+'</button>';}
+function _ghistBtn(r,i,m){return '<button class="greg ghist'+(i===gSel?' on':'')+'"'+(i===gSel?' style="--gc:'+gRgb(r.c)+'"':'')+' onclick="gSelect('+i+')"><span class="gdot" style="color:'+gRgb(r.c)+'"></span><span class="ghist-l">'+r.l+'</span><span class="greg-per">'+(m.p||'')+'</span></button>';}
+function _gtimeline(){
+  var nodes=[['all','Todas']].concat(GEPOCHS).map(function(e){return '<button class="gtl-node'+(gEpoch===e[0]?' on':'')+'" onclick="gSetEpoch(\''+e[0]+'\')">'+e[1]+'</button>';});
+  return '<div class="ghud-timeline"><span class="gtl-cap">Línea de tiempo &rarr;</span><div class="gtl-row">'+nodes.join('<span class="gtl-line"></span>')+'</div></div>';
+}
+function gSetAxis(ax){gAxis=ax;gEpoch='all';
+  var s=document.getElementById('gRegSearch'); if(s)s.value='';
+  var sel=document.getElementById('gAxisSel'); if(sel)[].slice.call(sel.querySelectorAll('.gax')).forEach(function(bt){bt.classList.toggle('on',bt.getAttribute('data-ax')===ax);});
+  gBuildRegions();
+}
+function gSetEpoch(e){gEpoch=e;gBuildRegions();}
 </script>
 </body>
 </html>
