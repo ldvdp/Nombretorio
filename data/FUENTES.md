@@ -19,7 +19,7 @@ tildes a España (INE los da sin tilde); los demás países ya vienen acentuados
 | País | Fichero | Fuente | Descarga | Ventana | Métrica del "total" |
 |------|---------|--------|----------|---------|---------------------|
 | 🇪🇸 España | (embebido) | INE (padrón) | — | 2003–2023 | personas censadas vivas |
-| 🇺🇸 EE. UU. | `us.json` | SSA (dominio público) | mirror GitHub `hackerb9/ssa-baby-names/alldata.txt` (SSA bloquea curl) | 2000–2020 | nacimientos 1880–2020 |
+| 🇺🇸 EE. UU. | `us.json` | SSA (dominio público) | `ssa.gov/oact/babynames/names.zip` — **SSA bloquea curl (403); se descarga abriendo la URL en un navegador real** (ficheros `yobAAAA.txt`, `Nombre,Sexo,Cuenta`) | 2005–2025 | nacimientos 1880–2025 |
 | 🇫🇷 Francia | `fr.json` | INSEE | `insee.fr/.../prenoms-2025-nat_csv.zip` (UA de navegador; **UTF-8**; `sexe;prenom;periode;valeur;rang`) | 2003–2023 | nacimientos 1900–2025 |
 | 🇬🇧 R. Unido | `uk.json` | ONS (OGL) | `ons.gov.uk/.../babynames1996to2025.xlsx` (openpyxl; Table_1=niñas, Table_2=niños) | 2003–2023 | nacimientos 1996–2025 |
 | 🇮🇪 Irlanda | `ie.json` | CSO PxStat | API REST CSV, tablas `VSA50` (niños) / `VSA60` (niñas), estadística `C01`=recuento | 2003–2023 | nacimientos totales |
