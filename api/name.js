@@ -108,6 +108,17 @@ function buildIndex(html) {
     else scanItems(body, "n");
   }
 
+  // MEAN_ES: diccionario de etimologías {clave:["Origen","Significado."]} (JSON válido)
+  const mm = html.match(/const MEAN_ES=(\{[\s\S]*?\});/);
+  if (mm) {
+    try {
+      const dict = JSON.parse(mm[1]);
+      for (const k in dict) {
+        if (!MEAN.has(k)) MEAN.set(k, { cat: dict[k][0], d: dict[k][1] });
+      }
+    } catch (e) { /* si falla, seguimos sin etimologías */ }
+  }
+
   // MULTI_DATA={Juan:{"Euskera":'Jon',...},...} -> claves sin comillas, valores con entidades
   const TRANS = new Map();
   const md = html.match(/const MULTI_DATA=\{([\s\S]*?)\};/);
@@ -270,7 +281,9 @@ export default async function handler(req, res) {
       rank: null, total: null, gender: "", births: null,
     };
     const related = found ? relatedFor(slug, entry, CACHE.order) : [];
-    const seo = seoBlock(entry, CACHE.MEAN.get(slug), CACHE.TRANS.get(slug), related);
+    // los compuestos ("maria-carmen") heredan la etimología de su primera palabra
+    const mean = CACHE.MEAN.get(slug) || CACHE.MEAN.get(slug.split("-")[0]);
+    const seo = seoBlock(entry, mean, CACHE.TRANS.get(slug), related);
     res.setHeader("content-type", "text/html; charset=utf-8");
     res.setHeader("cache-control", found ? "public, s-maxage=86400, stale-while-revalidate=604800" : "public, s-maxage=60");
     res.status(found ? 200 : 404).send(patch(html, metaFor(entry, slug), entry, seo, !found));
