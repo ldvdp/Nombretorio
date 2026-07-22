@@ -397,7 +397,7 @@ body.home .fav-fab{display:none!important}
 .fav-rm{flex:0 0 auto;background:none;border:none;cursor:pointer;color:#A9A7B0;font-size:1.2rem;line-height:1;padding:0 4px}
 .fav-rm:hover{color:#c0392b}
 .fav-acts{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:10px}
-.fav-clear{background:none;border:none;color:#b06a5a;font-size:.76rem;cursor:pointer;text-decoration:underline;margin-bottom:4px}
+.fav-clear{background:none;border:none;color:#9B2D50;font-size:.76rem;cursor:pointer;text-decoration:underline;margin-bottom:4px}
 .fav-empty{color:#8A8794;font-size:.86rem;padding:24px 8px;text-align:center;line-height:1.6}
 .gd2.gu{background:#c9a84c}
 a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.tab:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--gd);outline-offset:2px;border-radius:6px}
@@ -442,7 +442,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.t
 .nd-rel{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
 .nd-rel-a{font-size:.78rem;background:#fff;border:1px solid #E6E6E1;border-radius:20px;padding:5px 12px;color:#7a4a3a;text-decoration:none;font-family:'Playfair Display',serif;transition:border-color .15s,color .15s}
 .nd-rel-a:hover{border-color:#d9a94a;color:#9B2D50}
-.shm-btn.cmp{background:#4a3a63;color:#fff}
+.shm-btn.cmp{background:#2F6C9E;color:#fff}
 .cmp-card{width:min(520px,95vw);text-align:center}
 .cmp-sec{margin-top:14px}
 .cmp-svg{width:100%;height:104px;display:block;background:#fff;border:1px solid #E6E6E1;border-radius:10px}
@@ -1630,7 +1630,7 @@ function relatedNames(nm,g){
 }
 function _relClick(ev,nm){if(ev&&ev.preventDefault)ev.preventDefault();try{openShare(nm);}catch(e){}return false;}
 
-var CMP_COLORS=['#c9922f','#2f7fc9','#c94f7f','#3fa06a','#8a5fc9','#c9682f'];
+var CMP_COLORS=['#2F6C9E','#C24A72','#C9A24C','#3E8079','#7A5EA8','#B5652F'];
 function openCompare(){ if(favs.length<2){return;} renderCompare(); document.getElementById('compareModal').style.display='flex'; }
 function closeCompare(ev){ if(ev&&ev.target!==ev.currentTarget&&!(ev.target.classList&&ev.target.classList.contains('shm-x')))return; var m=document.getElementById('compareModal'); if(m)m.style.display='none'; }
 function cmpOverlay(items){
