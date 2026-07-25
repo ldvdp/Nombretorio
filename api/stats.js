@@ -40,6 +40,8 @@ export default async function handler(req, res) {
       ["GET", TOTAL],
       ["HGETALL", DAYS],
       ["HGETALL", COUNTRIES],
+      ["ZREVRANGE", "nombretorio:views", "0", "11", "WITHSCORES"],
+      ["HGETALL", "nombretorio:views:labels"],
     ]);
     if (!p) {
       res.status(200).json({ configured: false });
@@ -48,7 +50,15 @@ export default async function handler(req, res) {
     const total = Number((p[0] && p[0].result) || 0);
     const days = hashToObj(p[1] && p[1].result);
     const countries = hashToObj(p[2] && p[2].result);
-    res.status(200).json({ configured: true, total, days, countries });
+    // nombres más vistos: [slug, score, slug, score, ...] + hash de etiquetas bonitas
+    const zr = (p[3] && p[3].result) || [];
+    const labels = (p[4] && p[4].result) || {};
+    const labelOf = (slug) => (Array.isArray(labels) ? null : labels[slug]) || slug;
+    const views = [];
+    for (let i = 0; i < zr.length; i += 2) {
+      views.push({ name: labelOf(zr[i]), n: Number(zr[i + 1]) || 0 });
+    }
+    res.status(200).json({ configured: true, total, days, countries, views });
   } catch (e) {
     res.status(200).json({ configured: false, error: String((e && e.message) || e) });
   }

@@ -499,6 +499,11 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.t
 select{appearance:none;-webkit-appearance:none;-moz-appearance:none;background-color:#fff;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236C6A72' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px;transition:border-color .16s,box-shadow .16s}
 select:hover{border-color:var(--gd)}
 select:focus-visible{border-color:var(--gd);outline:2px solid var(--gd);outline-offset:1px}
+.st-view{display:flex;align-items:center;gap:8px;padding:5px 2px;border-bottom:1px solid #EAEAEF;font-size:.82rem}
+.st-view:last-child{border-bottom:none}
+.st-vrank{flex:0 0 auto;width:1.5em;text-align:center;font-size:.72rem;color:#9a98a4;font-weight:600}
+.st-vname{flex:0 0 auto;background:none;border:none;cursor:pointer;font-family:'Playfair Display',serif;font-weight:700;color:#1A1C22;padding:0;min-width:86px;text-align:left}
+.st-vname:hover{color:#9B2D50;text-decoration:underline}
 </style>
 </head>
 <body class="home">
@@ -820,6 +825,7 @@ select:focus-visible{border-color:var(--gd);outline:2px solid var(--gd);outline-
     <div class="stats-rangeval" id="stRangeVal"></div>
     <div class="stats-block" id="stChartBlock"><div class="nd-h">Visitas por d&iacute;a</div><div class="stats-chart" id="stChart"></div><div class="stats-chart-x" id="stChartX"></div></div>
     <div class="stats-block" id="stCountryBlock"><div class="nd-h">Por pa&iacute;s</div><div id="stCountries"></div></div>
+    <div class="stats-block" id="stViewsBlock"><div class="nd-h">Nombres m&aacute;s vistos</div><div id="stViews"></div></div>
     <div class="stats-note" id="stNote"></div>
     <div class="shm-foot">Sin cookies &middot; anal&iacute;tica an&oacute;nima propia</div>
   </div>
@@ -1317,6 +1323,7 @@ function mapMode(m){
 function shmDecode(s){var d=document.createElement('textarea');d.innerHTML=(s||'');return d.value;}
 function openShare(name,cat,desc){
   var nm=disp(shmDecode(name).trim()); if(!nm) return;
+  try{window._vn=window._vn||{};var _vk=_dkey(nm);if(!window._vn[_vk]){window._vn[_vk]=1;var _u='/api/view?n='+encodeURIComponent(nm);if(navigator.sendBeacon)navigator.sendBeacon(_u);else fetch(_u,{keepalive:true}).catch(function(){});}}catch(e){}
   var dd=shmDecode(desc||'').trim();
   // Al abrir por enlace directo no llega descripcion: la construimos con los datos del nombre.
   if(!dd){try{var _d=nameDetail(nm),_b=[];
@@ -1563,6 +1570,12 @@ function renderStats(){
     var cmax=countries[ckeys[0]]||1, totalC=ckeys.reduce(function(a,k){return a+countries[k];},0)||1;
     document.getElementById('stCountries').innerHTML=ckeys.slice(0,12).map(function(k){var pct=Math.round(countries[k]/totalC*100);var wd=Math.max(4,Math.round(countries[k]/cmax*100));return '<div class="st-cty"><span class="st-flag">'+_flag(k)+'</span><span class="st-cname">'+_cname(k)+'</span><span class="st-cbar"><span style="width:'+wd+'%"></span></span><span class="st-ccount">'+Number(countries[k]).toLocaleString('es-ES')+' &middot; '+pct+'%</span></div>';}).join('');
   } else { cob.style.display='none'; }
+  var vb=document.getElementById('stViewsBlock'), vlist=(d.views&&d.views.length)?d.views:null;
+  if(vb&&vlist){ vb.style.display='';
+    var vmax=vlist[0].n||1;
+    document.getElementById('stViews').innerHTML=vlist.map(function(v,i){var wd=Math.max(5,Math.round(v.n/vmax*100));
+      return '<div class="st-view"><span class="st-vrank">'+(i+1)+'</span><button class="st-vname" onclick="closeStats();openShare(\''+ (v.name+'').replace(/'/g,"\\'") +'\')">'+v.name+'</button><span class="st-cbar"><span style="width:'+wd+'%"></span></span><span class="st-ccount">'+Number(v.n).toLocaleString('es-ES')+'</span></div>';}).join('');
+  } else if(vb){ vb.style.display='none'; }
   var note=document.getElementById('stNote');
   if(!d.configured){note.style.display='';note.innerHTML=hasData?'':'La analítica detallada (por día y país) se activará en cuanto el almacén de datos esté configurado en Vercel. De momento se muestra el total de visitas.';}
   else{note.style.display='none';note.innerHTML='';}
