@@ -119,6 +119,16 @@ function buildIndex(html) {
     } catch (e) { /* si falla, seguimos sin etimologías */ }
   }
 
+  // VARIANTS_ES: {clave:["Luci","Lucita",...]} (JSON válido)
+  const VAR = new Map();
+  const vm = html.match(/const VARIANTS_ES=(\{[\s\S]*?\});/);
+  if (vm) {
+    try {
+      const dict = JSON.parse(vm[1]);
+      for (const k in dict) VAR.set(k, dict[k]);
+    } catch (e) { /* seguimos sin variantes */ }
+  }
+
   // MULTI_DATA={Juan:{"Euskera":'Jon',...},...} -> claves sin comillas, valores con entidades
   const TRANS = new Map();
   const md = html.match(/const MULTI_DATA=\{([\s\S]*?)\};/);
@@ -143,7 +153,7 @@ function buildIndex(html) {
   order.n.sort((a, b) => a.rank - b.rank);
   order.f.sort((a, b) => a.rank - b.rank);
 
-  return { idx, MEAN, TRANS, order };
+  return { idx, MEAN, TRANS, order, VAR };
 }
 
 // Nombres relacionados: vecinos en el ranking del mismo género (igual de populares).
@@ -185,7 +195,7 @@ function metaFor(entry, slug) {
 // Contenido real de la ficha, en HTML. El JS lo reemplaza por la version rica
 // (tarjetas + grafico) al cargar; esto es lo que ven los buscadores y quien no
 // tenga JS, y es lo que hace que cada pagina sea unica.
-function seoBlock(entry, mean, trans, related) {
+function seoBlock(entry, mean, trans, related, variants) {
   const n = esc(entry.display);
   const g = entry.gender;
   const gTxt = g === "n" ? "un nombre de niño" : g === "f" ? "un nombre de niña" : g === "u" ? "un nombre unisex" : "un nombre";
@@ -198,6 +208,12 @@ function seoBlock(entry, mean, trans, related) {
   let h = `<p style="font-size:.86rem;line-height:1.6;color:#4a4236;margin:10px 0">${lead}</p>`;
   if (mean)
     h += `<h2 ${H}>Significado y origen</h2><p style="font-size:.82rem;line-height:1.55;color:#4a4236;background:#fff;border:1px solid #ece0c8;border-radius:11px;padding:8px 11px">${esc(mean.cat)} ${esc(mean.d)}</p>`;
+  if (variants && variants.length) {
+    const chips = variants
+      .map((v) => `<span style="display:inline-block;font-size:.74rem;background:#fff;border:1px solid #ece0c8;border-radius:20px;padding:4px 11px;margin:0 4px 5px 0;color:#9B2D50;font-weight:600">${esc(v)}</span>`)
+      .join("");
+    h += `<h2 ${H}>Variantes y diminutivos</h2><div style="text-align:center">${chips}</div>`;
+  }
   if (trans) {
     const li = Object.keys(trans).slice(0, 10)
       .map((k) => `<li style="display:inline-block;font-size:.72rem;background:#fff;border:1px solid #ece0c8;border-radius:20px;padding:4px 11px;margin:0 4px 5px 0;color:#8a8072"><strong style="color:#2a2118">${esc(trans[k])}</strong> ${esc(k)}</li>`)
@@ -283,7 +299,8 @@ export default async function handler(req, res) {
     const related = found ? relatedFor(slug, entry, CACHE.order) : [];
     // los compuestos ("maria-carmen") heredan la etimología de su primera palabra
     const mean = CACHE.MEAN.get(slug) || CACHE.MEAN.get(slug.split("-")[0]);
-    const seo = seoBlock(entry, mean, CACHE.TRANS.get(slug), related);
+    const variants = CACHE.VAR.get(slug) || CACHE.VAR.get(slug.split("-")[0]);
+    const seo = seoBlock(entry, mean, CACHE.TRANS.get(slug), related, variants);
     res.setHeader("content-type", "text/html; charset=utf-8");
     res.setHeader("cache-control", found ? "public, s-maxage=86400, stale-while-revalidate=604800" : "public, s-maxage=60");
     res.status(found ? 200 : 404).send(patch(html, metaFor(entry, slug), entry, seo, !found));
