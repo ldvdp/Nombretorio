@@ -52,11 +52,14 @@ export default async function handler(req, res) {
     const countries = hashToObj(p[2] && p[2].result);
     // nombres más vistos: [slug, score, slug, score, ...] + hash de etiquetas bonitas
     const zr = (p[3] && p[3].result) || [];
-    const labels = (p[4] && p[4].result) || {};
-    const labelOf = (slug) => (Array.isArray(labels) ? null : labels[slug]) || slug;
+    // etiquetas: HGETALL puede venir como array [slug,nombre,...] o como objeto
+    const lraw = (p[4] && p[4].result) || {};
+    const labels = {};
+    if (Array.isArray(lraw)) { for (let i = 0; i < lraw.length; i += 2) labels[lraw[i]] = lraw[i + 1]; }
+    else { for (const k in lraw) labels[k] = lraw[k]; }
     const views = [];
     for (let i = 0; i < zr.length; i += 2) {
-      views.push({ name: labelOf(zr[i]), n: Number(zr[i + 1]) || 0 });
+      views.push({ name: labels[zr[i]] || zr[i], n: Number(zr[i + 1]) || 0 });
     }
     res.status(200).json({ configured: true, total, days, countries, views });
   } catch (e) {
