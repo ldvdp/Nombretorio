@@ -515,6 +515,12 @@ select:focus-visible{border-color:var(--gd);outline:2px solid var(--gd);outline-
 .nd-langs .nd-var{color:#9B2D50}
 .nd-santo{display:flex;align-items:center;gap:9px;font-size:.84rem;color:#3A3B44;background:#fff;border:1px solid #E6E6E1;border-radius:11px;padding:9px 12px}
 .nd-santo-i{font-size:1.05rem;flex:0 0 auto;filter:saturate(.9)}
+.santo-hoy{margin:15px auto 0;max-width:540px;font-size:.83rem;color:#EADFC4;text-align:center;line-height:1.6}
+.santo-hoy:empty{display:none}
+.santo-hoy .sh-cal{margin-right:6px;opacity:.92}
+.santo-hoy .sh-lbl{color:#D8B75A;font-weight:600}
+.santo-hoy .sh-nom{display:inline-block;background:rgba(216,183,90,.16);border:1px solid rgba(216,183,90,.5);color:#F5ECD6;border-radius:20px;padding:3px 13px;margin:6px 4px 0;font-size:.83rem;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.2px}
+.santo-hoy .sh-nom:hover{background:rgba(216,183,90,.3)}
 </style>
 </head>
 <body class="home">
@@ -546,6 +552,7 @@ select:focus-visible{border-color:var(--gd);outline:2px solid var(--gd);outline-
     <h1 class="hero-title" onclick="goHome()" title="Volver al inicio">Nombretorio</h1>
     <svg class="hero-flourish" viewBox="0 0 260 22" aria-hidden="true"><g fill="none" stroke="#caa14e" stroke-width="1.4"><path d="M12,11 H102"/><path d="M158,11 H248"/></g><path d="M130,3 L138,11 130,19 122,11Z" fill="#caa14e"/><circle cx="106" cy="11" r="2.6" fill="#caa14e"/><circle cx="154" cy="11" r="2.6" fill="#caa14e"/></svg>
     <div class="hero-tag">nombres de todo el mundo</div>
+    <div id="santoHoy" class="santo-hoy"></div>
     <div class="hero-menu">
       <button class="hme hme-rnd" onclick="randomName()"><span class="hme-i">&#127922;</span><span class="hme-t">Sorpr&eacute;ndeme</span><span class="hme-s">Un nombre al azar para inspirarte</span></button>
       <button class="hme" onclick="goApp('s1')"><span class="hme-i">&#128200;</span><span class="hme-t">Tendencias</span><span class="hme-s">Los nombres m&aacute;s puestos, en Espa&ntilde;a y 6 pa&iacute;ses m&aacute;s</span></button>
@@ -1540,6 +1547,48 @@ window.addEventListener('popstate',function(e){
   var s=document.getElementById('shareModal'); if(s)s.style.display='none';
   _applyHash();
 });
+function renderSantoHoy(){
+  var box=document.getElementById('santoHoy'); if(!box||typeof SANTORAL_ES==='undefined') return;
+  var MESES={enero:1,febrero:2,marzo:3,abril:4,mayo:5,junio:6,julio:7,agosto:8,septiembre:9,octubre:10,noviembre:11,diciembre:12};
+  var MNOM=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  var arr=[];
+  for(var k in SANTORAL_ES){
+    var m=(SANTORAL_ES[k]||'').match(/(\d+)\s+de\s+([a-zA-Z]+)/);
+    if(!m) continue; var day=+m[1], mon=MESES[m[2].toLowerCase()];
+    if(!mon) continue;
+    arr.push({key:k, day:day, mon:mon, nom:disp(k.charAt(0).toUpperCase()+k.slice(1))});
+  }
+  if(!arr.length){box.innerHTML=''; return;}
+  var now=new Date(), td=now.getDate(), tm=now.getMonth()+1;
+  var hoy=arr.filter(function(x){return x.day===td && x.mon===tm;});
+  var lead, list;
+  if(hoy.length){
+    lead='Hoy, '+td+' de '+MNOM[tm-1]+', es el santo de';
+    list=hoy;
+  }else{
+    // proximo santo del calendario (con salto de anio)
+    var key=function(x){return (x.mon-1)*31 + x.day;};
+    var tk=(tm-1)*31 + td;
+    var fut=arr.filter(function(x){return key(x)>=tk;}).sort(function(a,b){return key(a)-key(b);});
+    var next=fut.length?fut[0]:arr.slice().sort(function(a,b){return key(a)-key(b);})[0];
+    var same=arr.filter(function(x){return x.day===next.day && x.mon===next.mon;});
+    lead='Pr\u00f3ximo santo \u2014 '+next.day+' de '+MNOM[next.mon-1];
+    list=same;
+  }
+  // sin repetir nombres, orden alfabetico, max 4
+  var seen={}, uniq=[];
+  list.forEach(function(x){var kk=x.nom.toLowerCase(); if(!seen[kk]){seen[kk]=1; uniq.push(x);}});
+  uniq.sort(function(a,b){return a.nom.localeCompare(b.nom,'es');});
+  uniq=uniq.slice(0,4);
+  var chips=uniq.map(function(x){
+    var safe=(x.nom+'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+    return '<button type="button" class="sh-nom" data-nom="'+safe+'">'+safe+'</button>';
+  }).join('');
+  box.innerHTML='<span class="sh-cal">\uD83D\uDDD3\uFE0F</span><span class="sh-lbl">'+lead+':</span><br>'+chips;
+  [].forEach.call(box.querySelectorAll('.sh-nom'),function(b){
+    b.addEventListener('click',function(){try{openShare(b.getAttribute('data-nom'));}catch(e){}});
+  });
+}
 /* arranque: el servidor ya nos dice el nombre; si no, ruta y luego hash (#nombre/ antiguo) */
 function _bootRoute(){
   if(window.__NAME__){openShare(window.__NAME__);return;}
@@ -1547,6 +1596,7 @@ function _bootRoute(){
 }
 window.addEventListener('hashchange',_applyHash);
 try{_bootRoute();}catch(e){}
+try{renderSantoHoy();}catch(e){}
 function loadStats(){var tt=document.getElementById('stTotal');if(tt)tt.textContent='…';fetch('/api/stats').then(function(r){return r.json();}).then(function(d){STATS=d;renderStats();}).catch(function(){STATS={configured:false};renderStats();});}
 function setStRange(n){stRange=n;renderStats();}
 function renderStats(){
