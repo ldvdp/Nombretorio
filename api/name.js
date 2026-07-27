@@ -204,7 +204,7 @@ function seoBlock(entry, mean, trans, related, variants) {
     lead += ` Ocupa el puesto nº ${entry.rank} en España, donde ${num(entry.total)} personas se llaman así.`;
   if (entry.births != null)
     lead += ` Entre 2003 y 2023 se registraron ${num(entry.births)} nacimientos con este nombre.`;
-  const H = 'style="font-family:Cinzel,serif;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:#b0872c;margin:14px 0 6px;text-align:center"';
+  const H = 'style="font-family:Cinzel,serif;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:#8C6A12;margin:14px 0 6px;text-align:center"';
   let h = `<p style="font-size:.86rem;line-height:1.6;color:#4a4236;margin:10px 0">${lead}</p>`;
   if (mean)
     h += `<h2 ${H}>Significado y origen</h2><p style="font-size:.82rem;line-height:1.55;color:#4a4236;background:#fff;border:1px solid #ece0c8;border-radius:11px;padding:8px 11px">${esc(mean.cat)} ${esc(mean.d)}</p>`;
@@ -226,7 +226,7 @@ function seoBlock(entry, mean, trans, related, variants) {
       .join("");
     h += `<h2 ${H}>Nombres relacionados</h2><nav style="text-align:center">${links}</nav>`;
   }
-  h += `<p style="text-align:center;margin:14px 0 0"><a href="/" style="font-size:.76rem;color:#b0872c;text-decoration:none">‹ Explorar todos los nombres</a></p>`;
+  h += `<p style="text-align:center;margin:14px 0 0"><a href="/" style="font-size:.76rem;color:#8C6A12;text-decoration:none">‹ Explorar todos los nombres</a></p>`;
   return h;
 }
 
