@@ -129,6 +129,16 @@ function buildIndex(html) {
     } catch (e) { /* seguimos sin variantes */ }
   }
 
+  // SANTORAL_ES: {clave:"13 de diciembre · Santa Lucía"} (JSON válido)
+  const SAN = new Map();
+  const sm = html.match(/const SANTORAL_ES=(\{[\s\S]*?\});/);
+  if (sm) {
+    try {
+      const dict = JSON.parse(sm[1]);
+      for (const k in dict) SAN.set(k, dict[k]);
+    } catch (e) { /* seguimos sin onomástica */ }
+  }
+
   // MULTI_DATA={Juan:{"Euskera":'Jon',...},...} -> claves sin comillas, valores con entidades
   const TRANS = new Map();
   const md = html.match(/const MULTI_DATA=\{([\s\S]*?)\};/);
@@ -153,7 +163,7 @@ function buildIndex(html) {
   order.n.sort((a, b) => a.rank - b.rank);
   order.f.sort((a, b) => a.rank - b.rank);
 
-  return { idx, MEAN, TRANS, order, VAR };
+  return { idx, MEAN, TRANS, order, VAR, SAN };
 }
 
 // Nombres relacionados: vecinos en el ranking del mismo género (igual de populares).
@@ -195,7 +205,7 @@ function metaFor(entry, slug) {
 // Contenido real de la ficha, en HTML. El JS lo reemplaza por la version rica
 // (tarjetas + grafico) al cargar; esto es lo que ven los buscadores y quien no
 // tenga JS, y es lo que hace que cada pagina sea unica.
-function seoBlock(entry, mean, trans, related, variants) {
+function seoBlock(entry, mean, trans, related, variants, santo) {
   const n = esc(entry.display);
   const g = entry.gender;
   const gTxt = g === "n" ? "un nombre de niño" : g === "f" ? "un nombre de niña" : g === "u" ? "un nombre unisex" : "un nombre";
@@ -208,6 +218,9 @@ function seoBlock(entry, mean, trans, related, variants) {
   let h = `<p style="font-size:.86rem;line-height:1.6;color:#4a4236;margin:10px 0">${lead}</p>`;
   if (mean)
     h += `<h2 ${H}>Significado y origen</h2><p style="font-size:.82rem;line-height:1.55;color:#4a4236;background:#fff;border:1px solid #ece0c8;border-radius:11px;padding:8px 11px">${esc(mean.cat)} ${esc(mean.d)}</p>`;
+  if (santo) {
+    h += `<h2 ${H}>Onomástica · día del santo</h2><p style="font-size:.82rem;color:#4a4236;background:#fff;border:1px solid #ece0c8;border-radius:11px;padding:8px 11px;text-align:center">🗓️ ${esc(santo)}</p>`;
+  }
   if (variants && variants.length) {
     const chips = variants
       .map((v) => `<span style="display:inline-block;font-size:.74rem;background:#fff;border:1px solid #ece0c8;border-radius:20px;padding:4px 11px;margin:0 4px 5px 0;color:#9B2D50;font-weight:600">${esc(v)}</span>`)
@@ -300,7 +313,8 @@ export default async function handler(req, res) {
     // los compuestos ("maria-carmen") heredan la etimología de su primera palabra
     const mean = CACHE.MEAN.get(slug) || CACHE.MEAN.get(slug.split("-")[0]);
     const variants = CACHE.VAR.get(slug) || CACHE.VAR.get(slug.split("-")[0]);
-    const seo = seoBlock(entry, mean, CACHE.TRANS.get(slug), related, variants);
+    const santo = CACHE.SAN.get(slug) || CACHE.SAN.get(slug.split("-")[0]);
+    const seo = seoBlock(entry, mean, CACHE.TRANS.get(slug), related, variants, santo);
     res.setHeader("content-type", "text/html; charset=utf-8");
     res.setHeader("cache-control", found ? "public, s-maxage=86400, stale-while-revalidate=604800" : "public, s-maxage=60");
     res.status(found ? 200 : 404).send(patch(html, metaFor(entry, slug), entry, seo, !found));
