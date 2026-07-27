@@ -553,6 +553,30 @@ select:focus-visible{border-color:var(--gd);outline:2px solid var(--gd);outline-
 .hm-seg button.on{background:#D8B75A;border-color:#D8B75A;color:#2a2620}
 .hm-az button{padding:5px 0;min-width:29px;text-align:center}
 @media(max-width:480px){.hf-more{min-height:40px}.hm-seg button{min-height:36px}.hm-lbl{flex-basis:100%;padding-top:0}}
+.cmp-add{position:relative;margin:0 0 14px}
+.cmp-add input{width:100%;box-sizing:border-box;padding:11px 14px;border:2px solid #E0D6BF;border-radius:12px;font-size:.95rem;font-family:inherit;outline:none;background:#fff;color:#2a2620;min-height:44px}
+.cmp-add input:focus{border-color:#D8B75A;box-shadow:0 0 0 3px rgba(216,183,90,.2)}
+.cmp-sug2{position:absolute;left:0;right:0;top:calc(100% + 4px);background:#fff;border:1px solid #E6E6E1;border-radius:12px;box-shadow:0 12px 28px rgba(0,0,0,.2);z-index:5;overflow:hidden;max-height:260px;overflow-y:auto}
+.cmp-sug2:empty{display:none}
+.cmp-sug2 button{display:flex;align-items:center;gap:9px;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid #f1f0ea;padding:11px 13px;font-family:inherit;font-size:.92rem;color:#2a2620;cursor:pointer;min-height:44px}
+.cmp-sug2 button:last-child{border-bottom:0}
+.cmp-sug2 button:hover{background:#faf6ec}
+.cmp-empty2{color:#a99f88;text-align:center;padding:26px 10px;font-size:.92rem}
+.cmp-del{background:none;border:0;color:#c07a8f;font-size:1.15rem;line-height:1;cursor:pointer;padding:2px 6px;min-height:32px}
+.cmp-del:hover{color:#9B2D50}
+.cmp-xgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cmp-xcard{background:#fff;border:1px solid #ece4d2;border-radius:12px;padding:11px}
+.cmp-xh{font-weight:800;color:#7a2740;font-size:.98rem;display:flex;align-items:center;gap:7px;margin-bottom:7px;font-family:Georgia,serif}
+.cmp-xrow{font-size:.8rem;margin:6px 0;line-height:1.4}
+.cmp-xl{display:block;font-size:.66rem;text-transform:uppercase;letter-spacing:.04em;color:var(--gdt,#8C6A12);font-weight:700}
+.cmp-xv{color:#3a352c}.cmp-xv b{color:#8C6A12}
+.cmp-xnone{color:#a99f88}
+.cmp-var2{display:inline-block;font-size:.7rem;background:#faf6ec;border:1px solid #E6E6E1;border-radius:20px;padding:2px 8px;margin:2px 3px 0 0;color:#9B2D50;font-weight:600}
+.nd-cmp-cta{margin:13px 0 2px}
+.nd-cmp-btn{width:100%;background:#7a2740;color:#fff;border:0;border-radius:12px;padding:12px;font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer;min-height:44px}
+.nd-cmp-btn:hover{background:#8f2f4c}
+@media(max-width:560px){.cmp-xgrid{grid-template-columns:1fr}}
+#cmpAddQ{min-height:46px}
 </style>
 </head>
 <body class="home">
@@ -605,6 +629,7 @@ select:focus-visible{border-color:var(--gd);outline:2px solid var(--gd);outline-
     <div id="santoHoy" class="santo-hoy"></div>
     <div class="hero-menu">
       <button class="hme hme-rnd" onclick="randomName()"><span class="hme-i">&#127922;</span><span class="hme-t">Sorpr&eacute;ndeme</span><span class="hme-s">Un nombre al azar para inspirarte</span></button>
+      <button class="hme" onclick="openCompare()"><span class="hme-i">&#9878;&#65039;</span><span class="hme-t">Comparar</span><span class="hme-s">Dos nombres, cara a cara</span></button>
       <button class="hme" onclick="goApp('s1')"><span class="hme-i">&#128200;</span><span class="hme-t">Tendencias</span><span class="hme-s">Los nombres m&aacute;s puestos, en Espa&ntilde;a y 6 pa&iacute;ses m&aacute;s</span></button>
       <button class="hme" onclick="goApp('s6')"><span class="hme-i">&#128506;&#65039;</span><span class="hme-t">Mapa</span><span class="hme-s">Espa&ntilde;a en pergamino y el globo del mundo</span></button>
       <button class="hme" onclick="goApp('s4')"><span class="hme-i">&#10024;</span><span class="hme-t">Especiales</span><span class="hme-s">Prerromanos, del mundo, b&iacute;blicos&hellip;</span></button>
@@ -830,6 +855,10 @@ select:focus-visible{border-color:var(--gd);outline:2px solid var(--gd);outline-
     <button class="shm-x" onclick="closeCompare()" aria-label="Cerrar">&times;</button>
     <div class="shm-cat">&#9878;&#65039; Comparativa</div>
     <div class="fav-title">Comparar nombres</div>
+    <div class="cmp-add">
+      <input id="cmpAddQ" type="text" autocomplete="off" spellcheck="false" placeholder="A&ntilde;ade un nombre a la comparativa&hellip;" aria-label="A&ntilde;adir nombre" oninput="cmpSearchAdd()" onkeydown="cmpAddKey(event)" onblur="cmpAddBlur()">
+      <div id="cmpAddR" class="cmp-sug2"></div>
+    </div>
     <div id="cmpBody"></div>
     <div class="shm-foot">nombretorio.vercel.app</div>
   </div>
@@ -841,7 +870,7 @@ select:focus-visible{border-color:var(--gd);outline:2px solid var(--gd);outline-
     <div class="fav-title">Mis nombres favoritos</div>
     <div class="fav-list" id="favList"></div>
     <div class="fav-acts">
-      <button id="favCmp" class="shm-btn cmp" onclick="openCompare()">&#9878;&#65039; Comparar</button>
+      <button id="favCmp" class="shm-btn cmp" onclick="openCompare('__favs__')">&#9878;&#65039; Comparar</button>
       <a id="favWa" class="shm-btn wa" target="_blank" rel="noopener">&#128172; Compartir</a>
       <button class="shm-btn cp" onclick="favCopy()">&#128203; Copiar</button>
       <button class="shm-btn tg" onclick="favDownload()">&#11015;&#65039; Descargar</button>
@@ -1489,6 +1518,7 @@ function ndChart(y){
 }
 function renderNameDetail(nm){
   var el=document.getElementById('shmDetail'); if(!el)return; el.innerHTML='';
+  window._ndCur=nm;
   var d=nameDetail(nm), h='';
   var st=[];
   if(d.gender){var gi=d.gender==='n'?'&#9794;':d.gender==='f'?'&#9792;':'&#9895;',gl=d.gender==='n'?'Ni&ntilde;o':d.gender==='f'?'Ni&ntilde;a':'Unisex';
@@ -1496,6 +1526,7 @@ function renderNameDetail(nm){
   if(d.rank!=null) st.push('<div class="nd-stat"><span class="nd-k">#'+d.rank+'</span><span class="nd-l">ranking '+CNAME+'</span></div>');
   if(d.people!=null) st.push('<div class="nd-stat"><span class="nd-k">'+fmt(d.people)+'</span><span class="nd-l">'+CMETRIC+'</span></div>');
   if(st.length) h+='<div class="nd-stats">'+st.join('')+'</div>';
+  h+='<div class="nd-cmp-cta"><button type="button" class="nd-cmp-btn" onclick="openCompare(window._ndCur)">&#9878;&#65039; Comparar con otro nombre</button></div>';
   if(d.years) h+='<div class="nd-sec"><div class="nd-h">Evoluci&oacute;n '+Y0+'&ndash;'+YN+'</div>'+ndChart(d.years)+
     (d.births!=null?'<div class="nd-cap">'+fmt(d.births)+' nacimientos entre '+Y0+' y '+YN+'</div>':'')+'</div>';
   if(d.cards.length){var seen={},cc=d.cards.filter(function(c){if(seen[c.d])return false;seen[c.d]=1;return true;}).slice(0,3);
@@ -1844,7 +1875,14 @@ function relatedNames(nm,g){
 function _relClick(ev,nm){if(ev&&ev.preventDefault)ev.preventDefault();try{openShare(nm);}catch(e){}return false;}
 
 var CMP_COLORS=['#2F6C9E','#C24A72','#C9A24C','#3E8079','#7A5EA8','#B5652F'];
-function openCompare(){ if(favs.length<2){return;} renderCompare(); document.getElementById('compareModal').style.display='flex'; }
+var cmpList=[], _cmpAddSug=[];
+function _cmpAddName(nm){ var key=_dkey(nm); if(!key)return false; for(var i=0;i<cmpList.length;i++)if(_dkey(cmpList[i].n)===key)return false; var g=''; try{g=nameDetail(nm).gender||'';}catch(e){} cmpList.push({n:nm,g:g}); return true; }
+function cmpAdd(nm){ if(cmpList.length>=6)return; if(_cmpAddName(nm))renderCompare(); }
+function cmpRemove(key){ cmpList=cmpList.filter(function(x){return _dkey(x.n)!==key;}); renderCompare(); }
+function cmpSearchAdd(){ var inp=document.getElementById('cmpAddQ'), box=document.getElementById('cmpAddR'); if(!inp||!box)return; var raw=inp.value.trim(), q=_dkey(raw); if(!q){box.innerHTML=''; _cmpAddSug=[]; return;} var idx=_homeIndex(), pre=[], sub=[]; for(var i=0;i<idx.length;i++){var p=idx[i].k.indexOf(q); if(p===0)pre.push(idx[i]); else if(p>0)sub.push(idx[i]);} var byw=function(a,b){return b.w-a.w||a.n.localeCompare(b.n,'es');}; pre.sort(byw); sub.sort(byw); _cmpAddSug=pre.concat(sub).slice(0,7); if(!_cmpAddSug.length){box.innerHTML='<div class="hq-none">Sin resultados</div>';return;} box.innerHTML=_cmpAddSug.map(function(m,ix){return '<button type="button" data-ix="'+ix+'"><span class="hq-n">'+disp(m.n).replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</span></button>';}).join(''); [].forEach.call(box.querySelectorAll('button'),function(b){b.addEventListener('mousedown',function(ev){ev.preventDefault(); var m=_cmpAddSug[+b.getAttribute('data-ix')]; if(m){cmpAdd(m.n); inp.value=''; box.innerHTML=''; inp.focus();}});}); }
+function cmpAddKey(e){ if(e.key==='Enter'){ if(_cmpAddSug.length){e.preventDefault(); cmpAdd(_cmpAddSug[0].n); var i=document.getElementById('cmpAddQ'); if(i)i.value=''; var b=document.getElementById('cmpAddR'); if(b)b.innerHTML='';} } else if(e.key==='Escape'){var b=document.getElementById('cmpAddR'); if(b)b.innerHTML='';} }
+function cmpAddBlur(){ setTimeout(function(){var b=document.getElementById('cmpAddR'); if(b)b.innerHTML='';},130); }
+function openCompare(seed){ var m=document.getElementById('compareModal'); if(!m)return; if(seed==='__favs__'){ cmpList=favs.slice(0,6).map(function(f){return {n:f.n,g:f.g};}); } else if(seed){ _cmpAddName(seed); } if(document.body.classList.contains('home'))document.body.classList.remove('home'); var sh=document.getElementById('shareModal'); if(sh)sh.style.display='none'; var q=document.getElementById('cmpAddQ'); if(q)q.value=''; var r=document.getElementById('cmpAddR'); if(r)r.innerHTML=''; renderCompare(); m.style.display='flex'; }
 function closeCompare(ev){ if(ev&&ev.target!==ev.currentTarget&&!(ev.target.classList&&ev.target.classList.contains('shm-x')))return; var m=document.getElementById('compareModal'); if(m)m.style.display='none'; }
 function cmpOverlay(items){
   var W=300,H=104,n=21,pad=4;
@@ -1863,12 +1901,12 @@ function cmpOverlay(items){
 }
 function renderCompare(){
   var body=document.getElementById('cmpBody'); if(!body)return;
-  var sel=favs.slice(0,6);
-  var data=sel.map(function(f){var d;try{d=nameDetail(f.n);}catch(e){d={cards:[]};} return {name:disp(f.n),g:(d.gender||f.g),d:d};});
+  var sel=cmpList.slice(0,6);
+  if(!sel.length){ body.innerHTML='<div class="cmp-empty2">A&ntilde;ade nombres con el buscador de arriba para compararlos.</div>'; return; }
+  var data=sel.map(function(f){var d;try{d=nameDetail(f.n);}catch(e){d={cards:[]};} return {name:disp(f.n),key:_dkey(f.n),g:(d.gender||f.g),d:d};});
   var h='';
   var withY=data.filter(function(x){return x.d&&x.d.years;});
   if(withY.length>=1) h+='<div class="cmp-sec">'+cmpOverlay(withY)+'</div>';
-  // tabla comparativa
   var rows=data.map(function(x,i){
     var d=x.d||{}, col=CMP_COLORS[i%CMP_COLORS.length];
     var gi=x.g==='n'?'&#9794;':x.g==='f'?'&#9792;':x.g==='u'?'&#9895;':'&middot;';
@@ -1878,12 +1916,22 @@ function renderCompare(){
       '<td>'+(d.rank!=null?'#'+d.rank:'&mdash;')+'</td>'+
       '<td>'+(d.people!=null?fmt(d.people):'&mdash;')+'</td>'+
       '<td>'+(d.births!=null?fmt(d.births):'&mdash;')+'</td>'+
+      '<td><button type="button" class="cmp-del" title="Quitar" aria-label="Quitar" onclick="cmpRemove(\''+x.key+'\')">&times;</button></td>'+
     '</tr>';
   }).join('');
   h+='<div class="cmp-sec"><div class="nd-h">Datos</div><div class="cmp-tw"><table class="cmp-tbl">'+
-     '<thead><tr><th>Nombre</th><th></th><th>Rango</th><th>Personas</th><th>Nacim.</th></tr></thead>'+
+     '<thead><tr><th>Nombre</th><th></th><th>Rango</th><th>Personas</th><th>Nacim.</th><th></th></tr></thead>'+
      '<tbody>'+rows+'</tbody></table></div></div>';
-  if(favs.length>6) h+='<div class="cmp-note">Se comparan los 6 primeros de tu lista.</div>';
+  var extra=data.map(function(x,i){
+    var d=x.d||{}, col=CMP_COLORS[i%CMP_COLORS.length], parts='';
+    if(d.cards&&d.cards.length){var c=d.cards[0]; parts+='<div class="cmp-xrow"><span class="cmp-xl">Significado</span><span class="cmp-xv"><b>'+c.cat+'</b> '+c.d+'</span></div>';}
+    if(d.santo)parts+='<div class="cmp-xrow"><span class="cmp-xl">Onom&aacute;stica</span><span class="cmp-xv">'+d.santo+'</span></div>';
+    if(d.variants&&d.variants.length)parts+='<div class="cmp-xrow"><span class="cmp-xl">Variantes</span><span class="cmp-xv">'+d.variants.map(function(v){return '<span class="cmp-var2">'+v+'</span>';}).join('')+'</span></div>';
+    if(!parts)parts='<div class="cmp-xrow cmp-xnone">Sin datos ampliados por ahora.</div>';
+    return '<div class="cmp-xcard"><div class="cmp-xh"><span class="cmp-dot" style="background:'+col+'"></span>'+x.name+'</div>'+parts+'</div>';
+  }).join('');
+  h+='<div class="cmp-sec"><div class="nd-h">Significado, santo y variantes</div><div class="cmp-xgrid">'+extra+'</div></div>';
+  if(cmpList.length>6) h+='<div class="cmp-note">Se comparan los 6 primeros.</div>';
   body.innerHTML=h;
 }
 
