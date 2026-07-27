@@ -535,6 +535,12 @@ select:focus-visible{border-color:var(--gd);outline:2px solid var(--gd);outline-
 .hero-qr .hq-n{font-weight:600}
 .hero-qr .hq-none{padding:13px 17px;color:#8a8378;font-size:.92rem}
 @media(max-width:480px){.hero-search input{min-height:48px}.hero-qr button{min-height:46px}}
+.hero-search-in{position:relative}
+.hero-filter{display:flex;gap:7px;justify-content:center;margin-top:11px}
+.hero-filter .hf-b{background:rgba(255,255,255,.08);border:1px solid rgba(216,183,90,.42);color:#EADFC4;border-radius:16px;padding:6px 16px;font-size:.8rem;font-family:inherit;font-weight:600;cursor:pointer;min-height:34px}
+.hero-filter .hf-b:hover{background:rgba(216,183,90,.18)}
+.hero-filter .hf-b.on{background:#D8B75A;border-color:#D8B75A;color:#2a2620}
+@media(max-width:480px){.hero-filter .hf-b{min-height:40px;padding:8px 18px}}
 </style>
 </head>
 <body class="home">
@@ -567,8 +573,15 @@ select:focus-visible{border-color:var(--gd);outline:2px solid var(--gd);outline-
     <svg class="hero-flourish" viewBox="0 0 260 22" aria-hidden="true"><g fill="none" stroke="#caa14e" stroke-width="1.4"><path d="M12,11 H102"/><path d="M158,11 H248"/></g><path d="M130,3 L138,11 130,19 122,11Z" fill="#caa14e"/><circle cx="106" cy="11" r="2.6" fill="#caa14e"/><circle cx="154" cy="11" r="2.6" fill="#caa14e"/></svg>
     <div class="hero-tag">nombres de todo el mundo</div>
     <div class="hero-search">
+      <div class="hero-search-in">
       <span class="hs-i" aria-hidden="true"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#8a8378" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
       <input type="text" id="homeQ" autocomplete="off" spellcheck="false" placeholder="Busca un nombre…" aria-label="Buscar un nombre" oninput="homeSearch()" onkeydown="homeKey(event)" onblur="homeBlur()">
+      </div>
+      <div class="hero-filter" role="group" aria-label="Filtrar por sexo">
+        <button type="button" class="hf-b on" aria-pressed="true" onclick="homeFilter('',this)">Todos</button>
+        <button type="button" class="hf-b" aria-pressed="false" onclick="homeFilter('n',this)">Ni&ntilde;o</button>
+        <button type="button" class="hf-b" aria-pressed="false" onclick="homeFilter('f',this)">Ni&ntilde;a</button>
+      </div>
       <div id="homeQr" class="hero-qr" role="listbox"></div>
     </div>
     <div id="santoHoy" class="santo-hoy"></div>
@@ -1612,26 +1625,27 @@ var _HOMEIDX=null;
 function _homeIndex(){
   if(_HOMEIDX)return _HOMEIDX;
   var seen={}, arr=[];
-  function add(n,w){
+  function add(n,w,g){
     var nm=shmDecode(n+'').trim(); if(!nm)return;
     var k=_dkey(nm); if(!k)return;
-    if(seen[k]!=null){ if((w||0)>arr[seen[k]].w)arr[seen[k]].w=w||0; return; }
-    seen[k]=arr.length; arr.push({n:nm,k:k,w:w||0});
+    if(seen[k]!=null){ var e=arr[seen[k]]; if((w||0)>e.w)e.w=w||0; if(g&&e.g.indexOf(g)<0)e.g+=g; return; }
+    seen[k]=arr.length; arr.push({n:nm,k:k,w:w||0,g:g||''});
   }
-  try{ M5K.forEach(function(x){add(x[0],x[2]||0);}); }catch(e){}
-  try{ W5K.forEach(function(x){add(x[0],x[2]||0);}); }catch(e){}
-  try{ BB.forEach(function(x){add(x.n,x.t||0);}); BG.forEach(function(x){add(x.n,x.t||0);}); }catch(e){}
-  try{ [HIST_DATA,COUNTRY_DATA,WORLD_DATA,ORIGEN_DATA,BIBLICAL_DATA].forEach(function(B){['n','f'].forEach(function(g){(B[g]||[]).forEach(function(it){add(it.n,0);});});}); }catch(e){}
+  try{ M5K.forEach(function(x){add(x[0],x[2]||0,'n');}); }catch(e){}
+  try{ W5K.forEach(function(x){add(x[0],x[2]||0,'f');}); }catch(e){}
+  try{ BB.forEach(function(x){add(x.n,x.t||0,'n');}); BG.forEach(function(x){add(x.n,x.t||0,'f');}); }catch(e){}
+  try{ [HIST_DATA,COUNTRY_DATA,WORLD_DATA,ORIGEN_DATA,BIBLICAL_DATA].forEach(function(B){['n','f'].forEach(function(g){(B[g]||[]).forEach(function(it){add(it.n,0,g);});});}); }catch(e){}
   _HOMEIDX=arr; return arr;
 }
-var _homeSel=-1, _homeMatches=[];
+var _homeSel=-1, _homeMatches=[], _homeGender='';
 function homeSearch(){
   var inp=document.getElementById('homeQ'), box=document.getElementById('homeQr');
   if(!inp||!box)return;
   var raw=inp.value.trim(), q=_dkey(raw);
   if(!q){ box.innerHTML=''; _homeMatches=[]; _homeSel=-1; return; }
-  var idx=_homeIndex(), pre=[], sub=[];
+  var idx=_homeIndex(), pre=[], sub=[], g=_homeGender||'';
   for(var i=0;i<idx.length;i++){
+    if(g && (idx[i].g||'').indexOf(g)<0)continue;
     var p=idx[i].k.indexOf(q);
     if(p===0)pre.push(idx[i]); else if(p>0)sub.push(idx[i]);
   }
@@ -1666,7 +1680,14 @@ function homeKey(e){
   else if(e.key==='ArrowUp'){ e.preventDefault(); _homeSel=Math.max(0,_homeSel-1); _homeHi(); }
   else if(e.key==='Escape'){ var b=document.getElementById('homeQr'); if(b)b.innerHTML=''; _homeSel=-1; }
 }
-function homeBlur(){ setTimeout(function(){ var b=document.getElementById('homeQr'); if(b)b.innerHTML=''; _homeSel=-1; }, 120); }
+function homeFilter(g,btn){
+  _homeGender=g||'';
+  var wrap=btn.parentNode;
+  [].forEach.call(wrap.querySelectorAll('.hf-b'),function(b){var on=(b===btn);b.classList.toggle('on',on);b.setAttribute('aria-pressed',on?'true':'false');});
+  homeSearch();
+  var inp=document.getElementById('homeQ'); if(inp)inp.focus();
+}
+function homeBlur(){ setTimeout(function(){ var sc=document.querySelector('.hero-search'); if(sc&&sc.contains(document.activeElement))return; var b=document.getElementById('homeQr'); if(b)b.innerHTML=''; _homeSel=-1; }, 120); }
 /* arranque: el servidor ya nos dice el nombre; si no, ruta y luego hash (#nombre/ antiguo) */
 function _bootRoute(){
   if(window.__NAME__){openShare(window.__NAME__);return;}
