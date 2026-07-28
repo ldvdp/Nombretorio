@@ -243,13 +243,14 @@ function seoBlock(entry, mean, trans, related, variants, santo) {
   return h;
 }
 
-function jsonLd(entry, meta) {
+function jsonLd(entry, meta, mean, santo) {
+  const D = entry.display;
   const crumb = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Inicio", item: SITE + "/" },
-      { "@type": "ListItem", position: 2, name: entry.display },
+      { "@type": "ListItem", position: 2, name: D },
     ],
   };
   const page = {
@@ -262,11 +263,35 @@ function jsonLd(entry, meta) {
     primaryImageOfPage: meta.img,
     isPartOf: { "@type": "WebSite", name: "Nombretorio", url: SITE + "/" },
   };
-  const s = JSON.stringify([crumb, page]).replace(/</g, "\\u003c");
+  const out = [crumb, page];
+  // FAQPage a partir de datos YA visibles en la ficha (significado y onomástica).
+  const faq = [];
+  if (mean && mean.d) {
+    faq.push({
+      "@type": "Question",
+      name: `¿Qué significa el nombre ${D}?`,
+      acceptedAnswer: { "@type": "Answer", text: mean.d },
+    });
+  }
+  if (santo) {
+    const parts = (santo + "").split("·");
+    const date = (parts[0] || "").trim();
+    const saint = (parts[1] || "").trim();
+    faq.push({
+      "@type": "Question",
+      name: `¿Cuándo es el santo de ${D}?`,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: saint ? `${D} celebra su onomástica el ${date}, día de ${saint}.` : `${D} celebra su onomástica el ${date}.`,
+      },
+    });
+  }
+  if (faq.length) out.push({ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faq });
+  const s = JSON.stringify(out).replace(/</g, "\\u003c");
   return `<script type="application/ld+json">${s}</script>`;
 }
 
-function patch(html, meta, entry, seo, noindex) {
+function patch(html, meta, entry, seo, noindex, mean, santo) {
   const t = esc(meta.title), d = esc(meta.desc), u = esc(meta.url), im = esc(meta.img);
   let out = html
     .replace(/<title>[\s\S]*?<\/title>/, `<title>${t}</title>`)
@@ -292,7 +317,7 @@ function patch(html, meta, entry, seo, noindex) {
   const inject =
     (noindex ? '<meta name="robots" content="noindex">' : "") +
     "<style>#shareModal{display:flex}</style>" +
-    (noindex ? "" : jsonLd(entry, meta)) +
+    (noindex ? "" : jsonLd(entry, meta, mean, santo)) +
     `<script>window.__NAME__=${JSON.stringify(entry.display)};</script>`;
   return out.replace("</head>", inject + "</head>");
 }
@@ -317,7 +342,7 @@ export default async function handler(req, res) {
     const seo = seoBlock(entry, mean, CACHE.TRANS.get(slug), related, variants, santo);
     res.setHeader("content-type", "text/html; charset=utf-8");
     res.setHeader("cache-control", found ? "public, s-maxage=86400, stale-while-revalidate=604800" : "public, s-maxage=60");
-    res.status(found ? 200 : 404).send(patch(html, metaFor(entry, slug), entry, seo, !found));
+    res.status(found ? 200 : 404).send(patch(html, metaFor(entry, slug), entry, seo, !found, mean, santo));
   } catch (e) {
     res.setHeader("location", "/");
     res.status(302).end();
